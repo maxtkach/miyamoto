@@ -11,12 +11,12 @@ interface NavItem {
 }
 
 const navigation: NavItem[] = [
-  { name: 'home', label: 'Home', jp: '本部', href: '/#home' },
-  { name: 'sound', label: 'Our Sound', jp: '音', href: '/#sound' },
-  { name: 'services', label: 'Services', jp: 'サービス', href: '/#services' },
-  { name: 'team', label: 'Team', jp: 'チーム', href: '/#team' },
-  { name: 'beats', label: 'Beats', jp: 'ビート', href: '/beats' },
-  { name: 'contact', label: 'Contact', jp: 'お問い合わせ', href: '/#contact' },
+  { name: 'home', label: 'Home', jp: '本部', href: '/miyamoto/#home' },
+  { name: 'sound', label: 'Our Sound', jp: '音', href: '/miyamoto/#sound' },
+  { name: 'services', label: 'Services', jp: 'サービス', href: '/miyamoto/#services' },
+  { name: 'team', label: 'Team', jp: 'チーム', href: '/miyamoto/#team' },
+  { name: 'beats', label: 'Beats', jp: 'ビート', href: '/miyamoto/beats' },
+  { name: 'contact', label: 'Contact', jp: 'お問い合わせ', href: '/miyamoto/#contact' },
 ];
 
 export default function Header() {
@@ -27,7 +27,7 @@ export default function Header() {
       <div className="container-custom">
         <div className="flex items-center justify-between py-6">
           <div className="flex items-center">
-            <Link href="/" className="flex items-center">
+            <Link href="/miyamoto/" className="flex items-center">
               <span className="jp-heading text-3xl font-bold text-gray-900 dark:text-white mr-2">宮本</span>
               <div>
                 <div className="text-xl font-bold text-gray-900 dark:text-white">MIYAMOTO</div>

@@ -36,7 +36,7 @@ const teamMembers: TeamMember[] = [
     jpRole: 'サウンドエンジニア & ビートメーカー',
     quote: 'Music is the universal language that connects all cultures and spirits.',
     seal: '音',
-    image: './images/team-member-1.jpg',
+    image: '/miyamoto/images/team-member-1.jpg',
     bio: 'With over 8 years of experience in sound design and music production, Jamil specializes in creating unique beats that blend traditional Japanese sounds with modern electronic music. His innovative approach has earned him recognition in the industry.',
     skills: [
       { name: 'Beat Production', level: 95, jpName: 'ビート制作' },
@@ -60,7 +60,7 @@ const teamMembers: TeamMember[] = [
     jpRole: 'サウンドエンジニア',
     quote: 'Perfect sound is not just heard — it is felt with every cell of your body.',
     seal: '響',
-    image: './images/team-member-2.jpg',
+    image: '/miyamoto/images/team-member-2.jpg',
     bio: 'Max has dedicated his career to perfecting the art of sound engineering. His meticulous attention to detail and deep understanding of acoustics allow him to create immersive audio experiences that transport listeners to different worlds.',
     skills: [
       { name: 'Mastering', level: 98, jpName: 'マスタリング' },
@@ -149,7 +149,7 @@ export default function TeamSection() {
           top: mouseBrushPosition.y - 150,
           width: 300,
           height: 300,
-          backgroundImage: 'url(./images/ink-brush.svg)',
+          backgroundImage: 'url(/miyamoto/images/ink-brush.svg)',
           backgroundSize: 'contain',
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
@@ -162,7 +162,7 @@ export default function TeamSection() {
       {/* Decorative Japanese wave pattern background */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{
-          backgroundImage: 'url(./images/japanese-wave.svg)',
+          backgroundImage: 'url(/miyamoto/images/japanese-wave.svg)',
           backgroundSize: '100px',
           backgroundRepeat: 'repeat',
           transform: 'rotate(5deg) scale(1.5)',

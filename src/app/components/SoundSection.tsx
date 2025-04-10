@@ -19,48 +19,48 @@ const tracks: Track[] = [
     title: "Serenity",
     artist: "Miyamoto Soundworks",
     category: "Lo-Fi",
-    url: "/audio/track1.mp3",
-    cover: "/images/cover-1.jpg"
+    url: "/miyamoto/audio/track1.mp3",
+    cover: "/miyamoto/images/cover-1.jpg"
   },
   {
     id: 2,
     title: "Tokyo Midnight",
     artist: "Miyamoto Soundworks",
     category: "Ambient",
-    url: "/audio/track2.mp3",
-    cover: "/images/cover-2.jpg"
+    url: "/miyamoto/audio/track2.mp3",
+    cover: "/miyamoto/images/cover-2.jpg"
   },
   {
     id: 3,
     title: "Sakura",
     artist: "Miyamoto Soundworks",
     category: "Electronic",
-    url: "/audio/track3.mp3",
-    cover: "/images/cover-3.jpg"
+    url: "/miyamoto/audio/track3.mp3",
+    cover: "/miyamoto/images/cover-3.jpg"
   },
   {
     id: 4,
     title: "Kyoto",
     artist: "Miyamoto Soundworks",
     category: "Traditional",
-    url: "/audio/track4.mp3",
-    cover: "/images/cover-4.jpg"
+    url: "/miyamoto/audio/track4.mp3",
+    cover: "/miyamoto/images/cover-4.jpg"
   },
   {
     id: 5,
     title: "Zen Garden",
     artist: "Miyamoto Soundworks",
     category: "Meditation",
-    url: "/audio/track5.mp3",
-    cover: "/images/cover-5.jpg"
+    url: "/miyamoto/audio/track5.mp3",
+    cover: "/miyamoto/images/cover-5.jpg"
   },
   {
     id: 6,
     title: "Fuji Dawn",
     artist: "Miyamoto Soundworks",
     category: "Nature",
-    url: "/audio/track6.mp3",
-    cover: "/images/cover-6.jpg"
+    url: "/miyamoto/audio/track6.mp3",
+    cover: "/miyamoto/images/cover-6.jpg"
   }
 ];
 

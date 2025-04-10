@@ -12,6 +12,9 @@ const nextConfig = {
     unoptimized: true,
   },
   output: 'export',
+  // Настройки для GitHub Pages
+  basePath: '/miyamoto',
+  assetPrefix: '/miyamoto/',
 };
 
 module.exports = nextConfig; 

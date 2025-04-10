@@ -15,7 +15,7 @@ const beats = [
     artist: "Miyamoto",
     duration: "2:35",
     category: "Lo-Fi",
-    coverImage: "./images/cover-1.jpg",
+    coverImage: "/miyamoto/images/cover-1.jpg",
     key: "Am",
     bpm: 85
   },
@@ -25,7 +25,7 @@ const beats = [
     artist: "Miyamoto",
     duration: "3:12",
     category: "Ambient",
-    coverImage: "./images/cover-2.jpg",
+    coverImage: "/miyamoto/images/cover-2.jpg",
     key: "F",
     bpm: 72
   },
@@ -35,7 +35,7 @@ const beats = [
     artist: "Miyamoto",
     duration: "2:48",
     category: "Chill",
-    coverImage: "./images/cover-3.jpg",
+    coverImage: "/miyamoto/images/cover-3.jpg",
     key: "Dm",
     bpm: 90
   },
@@ -45,7 +45,7 @@ const beats = [
     artist: "Miyamoto",
     duration: "3:05",
     category: "Instrumental",
-    coverImage: "./images/cover-4.jpg",
+    coverImage: "/miyamoto/images/cover-4.jpg",
     key: "G",
     bpm: 78
   },
@@ -55,7 +55,7 @@ const beats = [
     artist: "Miyamoto",
     duration: "2:55",
     category: "Meditation",
-    coverImage: "./images/cover-5.jpg",
+    coverImage: "/miyamoto/images/cover-5.jpg",
     key: "C",
     bpm: 68
   },
@@ -65,7 +65,7 @@ const beats = [
     artist: "Miyamoto",
     duration: "3:22",
     category: "Trap",
-    coverImage: "./images/cover-6.jpg",
+    coverImage: "/miyamoto/images/cover-6.jpg",
     key: "Em",
     bpm: 140
   }
