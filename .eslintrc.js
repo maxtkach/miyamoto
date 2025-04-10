@@ -9,7 +9,6 @@ module.exports = {
   },
   // Отключаем проверку линтера для определенных файлов
   ignorePatterns: [
-    'src/app/components/BeatPlayer.tsx',
     'src/app/components/ContactSection.tsx',
     'src/app/components/Hero.tsx',
     'src/app/components/SakuraBackground.tsx',
