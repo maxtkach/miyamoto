@@ -1,8 +1,46 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Новая, более утонченная и гармоничная цветовая схема */
+  --background: #faf6f0; /* Washi - традиционная японская бумага */
+  --foreground: #1a0d01; /* Sumi - глубокий черный с теплым подтоном */
+  --accent: #a6051a; /* Shinku - глубокий алый, более благородный */
+  --accent-light: #c7293e; /* Beni - традиционный японский красный */
+  --secondary: #4a230a; /* Kogecha - темный, насыщенный коричневый */
+  --gold: #b78d12; /* Kincha - золотисто-желтый, подобно золоту на японских декорациях */
+  --gold-light: #d9b42f; /* Yamabuki - мягкий, светлый золотистый */
+  --bamboo: #2d5e0d; /* Midori - глубокий зеленый, цвет молодого бамбука */
+  --matcha: #6a8d30; /* Matcha - насыщенный зеленый, как японский чай матча */
+  --umber: #7d4012; /* Kobicha - рыжевато-коричневый, как деревянные храмы */
+  
+  /* Более естественные и спокойные оттенки серого */
+  --color-gray-50: #ffffff; /* Чистый белый */
+  --color-gray-100: #f8f5f0; /* Очень светлый бежевый */
+  --color-gray-200: #e8e2d9; /* Светлый бежево-серый */
+  --color-gray-300: #d3cbc0; /* Средне-светлый бежево-серый */
+  --color-gray-400: #b5a99c; /* Средний бежево-серый */
+  --color-gray-500: #8c8070; /* Выразительный средний серый с теплым подтоном */
+  --color-gray-600: #695d4f; /* Тёмно-бежевый */
+  --color-gray-700: #4b4135; /* Тёмный землистый коричневый */
+  --color-gray-800: #302921; /* Очень тёмный коричневый */
+  --color-gray-900: #1a0d01; /* Почти черный с теплым коричневым подтоном */
+  
+  --background-pattern: linear-gradient(45deg, rgba(0, 0, 0, 0.015) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.015) 75%), 
+                         linear-gradient(45deg, rgba(0, 0, 0, 0.015) 25%, transparent 25%, transparent 75%, rgba(0, 0, 0, 0.015) 75%);
+  --background-pattern-size: 20px 20px;
+  --background-pattern-position: 0 0, 10px 10px;
+  
+  /* Текстурные фоны */
+  --paper-texture-light: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mO8cOHCfwAIGQK/hSnwBgAAAABJRU5ErkJggg==");
+  --paper-texture-dark: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPj/HwADBwIAMCbHYQAAAABJRU5ErkJggg==");
+  --paper-texture-size: 300px;
+  --paper-texture-opacity: 0.12;
+  
+  /* Текстура "чернил" для золотых акцентов */
+  --ink-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='500' viewBox='0 0 500 500'%3E%3Cfilter id='roughpaper'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.34' numOctaves='5' seed='2' result='noise' /%3E%3CfeDiffuseLighting in='noise' lighting-color='%23b78d12' surfaceScale='1.5' result='light'%3E%3CfeDistantLight azimuth='80' elevation='75' /%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='500' height='500' filter='url(%23roughpaper)' opacity='0.15'/%3E%3C/svg%3E");
+  
+  /* Анимированные иероглифы в фоне */
+  --kanji-bg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Ctext x='50' y='150' font-family='sans-serif' font-size='120' fill='%23000000' opacity='0.025'%3E音%3C/text%3E%3Ctext x='220' y='300' font-family='sans-serif' font-size='100' fill='%23000000' opacity='0.025'%3E楽%3C/text%3E%3C/svg%3E");
 }
 
 @theme inline {
@@ -10,17 +48,862 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-jp: var(--font-noto-serif-jp);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Темная цветовая схема с более богатыми и насыщенными оттенками */
+    --background: #0e0a08; /* Kuro - глубокий черный с теплым подтоном */
+    --foreground: #f4f1e8; /* Gofun - традиционный белый пигмент */
+    --accent: #d32c3c; /* Aka - насыщенный красный */
+    --accent-light: #e54b5d; /* Beni-hi - яркий красный, как киноварь */
+    --secondary: #9a4f24; /* Karaki - теплый коричневый с красноватым оттенком */
+    --gold: #daa520; /* Kin - богатое золото, как на храмовых украшениях */
+    --gold-light: #f0c461; /* Yamabuki - светлое золото */
+    --bamboo: #5a8a2a; /* Moegi - яркий зеленый бамбук */
+    --matcha: #7da337; /* Uguisu - японский соловьиный цвет, насыщенный зеленый */
+    --umber: #c27022; /* Akakuchiba - красновато-коричневый, как осенняя листва */
+    
+    /* Оттенки серого для тёмной темы */
+    --color-gray-50: #0a0705; /* Глубокий черный */
+    --color-gray-100: #faebdf; /* Очень тёмный коричневый */
+    --color-gray-200: #f8e9de; /* Тёмно-коричневый */
+    --color-gray-300: #ebe1d9; /* Тёмный умбра */
+    --color-gray-400: #e9d9cf; /* Коричневый */
+    --color-gray-500: #75604c; /* Средний землистый коричневый */
+    --color-gray-600: #9c8572; /* Светло-коричневый */
+    --color-gray-700: #c4b6a7; /* Очень светлый беж */
+    --color-gray-800: #dfd9d0; /* Почти белый с бежевым оттенком */
+    --color-gray-900: #f4f1e8; /* Теплый белый */
+    
+    --background-pattern: linear-gradient(45deg, rgba(255, 255, 255, 0.015) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.015) 75%),
+                          linear-gradient(45deg, rgba(255, 255, 255, 0.015) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.015) 75%);
+    
+    /* Темные версии текстурных фонов */
+    --kanji-bg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Ctext x='50' y='150' font-family='sans-serif' font-size='120' fill='%23ffffff' opacity='0.025'%3E音%3C/text%3E%3Ctext x='220' y='300' font-family='sans-serif' font-size='100' fill='%23ffffff' opacity='0.025'%3E楽%3C/text%3E%3C/svg%3E");
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  background-image: var(--background-pattern);
+  background-size: var(--background-pattern-size);
+  background-position: var(--background-pattern-position);
+}
+
+.jp-heading {
+  font-family: var(--font-jp), serif;
+  letter-spacing: 0.05em;
+}
+
+.container-custom {
+  width: 100%;
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container-custom {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-custom {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Stylized Japanese-inspired components */
+.jp-border {
+  border: 2px solid var(--color-gray-800);
+  box-shadow: 4px 4px 0 var(--color-gray-800);
+}
+
+.dark .jp-border {
+  border-color: var(--color-gray-600);
+  box-shadow: 4px 4px 0 var(--color-gray-600);
+}
+
+.jp-button {
+  background-color: var(--color-gray-900);
+  color: var(--color-gray-50);
+  padding: 0.5rem 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  transition: all 0.2s;
+  border: 1px solid var(--color-gray-700);
+}
+
+.jp-button:hover {
+  background-color: var(--accent);
+  color: var(--color-gray-50);
+  transform: translateY(-0.25rem);
+}
+
+.dark .jp-button {
+  background-color: var(--color-gray-800);
+  color: var(--color-gray-50);
+  border-color: var(--color-gray-600);
+}
+
+.dark .jp-button:hover {
+  background-color: var(--accent);
+  color: var(--color-gray-50);
+}
+
+.jp-section {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+@media (min-width: 768px) {
+  .jp-section {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+  }
+}
+
+/* Decorative elements */
+.jp-divider {
+  position: relative;
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+  height: 0.125rem;
+  width: 100%;
+  background-color: theme('colors.gray.200');
+  overflow: visible;
+}
+
+.dark .jp-divider {
+  background-color: theme('colors.gray.700');
+}
+
+.jp-divider::before,
+.jp-divider::after {
+  content: '';
+  position: absolute;
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: var(--accent);
+  border-radius: 9999px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.jp-divider::before {
+  left: 0;
+}
+
+.jp-divider::after {
+  right: 0;
+}
+
+/* Japanese Service Cards - Special Styling */
+.jp-service-card {
+  position: relative;
+  perspective: 1000px;
+  will-change: transform;
+}
+
+.jp-service-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: var(--paper-texture-light);
+  background-size: cover;
+  opacity: 0.1;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.dark .jp-service-card::before {
+  background-image: var(--paper-texture-dark);
+  opacity: 0.05;
+}
+
+.jp-service-card > div {
+  background-color: var(--color-gray-800);
+  color: var(--color-gray-100);
+  position: relative;
+  z-index: 2;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Мерцающий эффект для печати */
+@keyframes stamp-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(157, 35, 40, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(157, 35, 40, 0.8);
+  }
+}
+
+.jp-service-card:hover .bg-red-600 {
+  animation: stamp-glow 2s infinite;
+  background-color: var(--accent) !important;
+}
+
+/* Эффект бумаги и чернил для фоновых иероглифов */
+.jp-service-card .text-gray-200,
+.jp-service-card .text-gray-800 {
+  background-clip: text;
+  -webkit-background-clip: text;
+  background-image: var(--paper-texture-light);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  filter: saturate(0);
+}
+
+/* Эффект "кисти" при наведении на кнопку */
+.jp-service-card .jp-button:hover {
+  background-image: linear-gradient(45deg, rgba(197, 48, 48, 0.1) 0%, transparent 70%);
+}
+
+/* Новые японские стили */
+
+/* Фон японской бумаги */
+.bg-jpaper {
+  background-color: var(--color-gray-800);
+  color: var(--color-gray-100);
+  background-image: var(--paper-texture-light);
+  background-repeat: repeat;
+  background-size: var(--paper-texture-size);
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.bg-jpaper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: var(--background-pattern);
+  background-size: var(--background-pattern-size);
+  background-position: var(--background-pattern-position);
+  opacity: 0.1;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.dark .bg-jpaper {
+  background-color: var(--color-gray-900);
+  background-image: var(--paper-texture-dark);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Эффект каллиграфии для заголовков */
+.calligraphy-text {
+  position: relative;
+  overflow: hidden;
+}
+
+.calligraphy-text::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  z-index: -1;
+}
+
+.calligraphy-text:hover::after {
+  transform: scaleX(1);
+}
+
+/* Золотые акценты */
+.gold-accent {
+  color: var(--gold);
+  position: relative;
+}
+
+.gold-accent::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+/* Эффект кисти для текста */
+.brush-stroke {
+  position: relative;
+  display: inline-block;
+  color: white;
+  padding: 0 0.5rem;
+}
+
+.brush-stroke::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--accent);
+  transform: skewX(-10deg);
+  z-index: -1;
+}
+
+/* Анимация появления текста как эффект кисти */
+@keyframes brushReveal {
+  0% {
+    clip-path: inset(0 100% 0 0);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.brush-reveal {
+  animation: brushReveal 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+/* Эффект рисовой бумаги */
+.rice-paper {
+  position: relative;
+  overflow: hidden;
+}
+
+.rice-paper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: var(--paper-texture-light);
+  background-size: cover;
+  opacity: 0.05;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+/* Стили для команды */
+.team-portrait {
+  position: relative;
+  overflow: hidden;
+}
+
+.team-portrait-img {
+  filter: grayscale(100%);
+  transition: all 0.6s ease;
+}
+
+.team-portrait-img:hover {
+  filter: grayscale(80%);
+}
+
+/* Японская печать hanko */
+.hanko-seal {
+  position: absolute;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background-color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-family: var(--font-jp);
+  transform: rotate(12deg);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  transition: all 0.3s ease;
+}
+
+.dark .hanko-seal {
+  background-color: var(--accent);
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.2);
+}
+
+.hanko-seal:hover {
+  transform: rotate(0deg) scale(1.1);
+  background-color: var(--accent-light);
+}
+
+/* Эффект наведения на карточку члена команды */
+.team-hover-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1.5rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, transparent 100%);
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.4s ease;
+}
+
+.team-portrait:hover .team-hover-info {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Цитата о музыке */
+.team-quote {
+  position: relative;
+  font-style: italic;
+  margin-top: 1rem;
+  padding-left: 1rem;
+  border-left: 2px solid var(--accent);
+  color: var(--color-gray-200);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+/* Золотая рамка */
+.gold-border {
+  border: 2px solid var(--gold);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+/* Контейнер для прокрутки */
+.scroll-container {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+/* Анимационные стили для каллиграфии */
+.calligraphy-animation {
+  position: relative;
+  display: inline-block;
+}
+
+.calligraphy-animation::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  bottom: -3px;
+  left: 0;
+  background-color: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.calligraphy-animation:hover::after {
+  transform: scaleX(1);
+}
+
+/* Эффект чернильного пятна для кнопки */
+.ink-splash-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.ink-splash-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background-color: rgba(157, 35, 40, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0s, height 0s;
+  z-index: 0;
+}
+
+.ink-splash-button:active::before {
+  width: 300px;
+  height: 300px;
+  transition: width 0.6s ease, height 0.6s ease;
+}
+
+.ink-splash-button > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Анимация разворачивания письма */
+@keyframes unfoldLetter {
+  0% {
+    transform: scale(0.95) translateY(20px);
+    opacity: 0;
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.form-letter {
+  animation: unfoldLetter 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  transform-origin: top center;
+}
+
+/* Японская печать (красная печать с иероглифами) */
+.jp-stamp {
+  position: relative;
+}
+
+.jp-stamp::after {
+  content: '宮本';
+  position: absolute;
+  bottom: -15px;
+  right: -15px;
+  width: 60px;
+  height: 60px;
+  background-color: var(--accent);
+  color: var(--color-gray-50);
+  font-family: var(--font-jp);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transform: rotate(-10deg);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+/* Эффект дрожания для печати после отправки */
+@keyframes stampShake {
+  0%, 100% {
+    transform: rotate(-10deg);
+  }
+  33% {
+    transform: rotate(-15deg);
+  }
+  66% {
+    transform: rotate(-5deg);
+  }
+}
+
+.jp-stamp.stamped::after {
+  animation: stampShake 0.5s ease, stamp-glow 2s infinite;
+}
+
+/* Фоновые линии для карточки контакта (как бумага для писем) */
+.letter-paper {
+  background-image: 
+    linear-gradient(rgba(0, 0, 0, 0.06) 1px, transparent 1px);
+  background-size: 100% 2rem;
+}
+
+.dark .letter-paper {
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+}
+
+/* Дополнительные классы для текстур в разных компонентах */
+.jp-texture {
+  position: relative;
+}
+
+.jp-texture::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: var(--paper-texture-light);
+  background-size: var(--paper-texture-size);
+  background-repeat: repeat;
+  opacity: var(--paper-texture-opacity);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.dark .jp-texture::before {
+  background-image: var(--paper-texture-dark);
+  opacity: 0.08;
+}
+
+/* Класс для текстуры для корневого элемента */
+.root-texture {
+  background-image: var(--paper-texture-light);
+  background-size: var(--paper-texture-size);
+  background-repeat: repeat;
+}
+
+.dark .root-texture {
+  background-image: var(--paper-texture-dark);
+}
+
+/* Переопределение стандартных классов Tailwind для темной темы с улучшенным контрастом */
+.dark .dark\:text-white {
+  color: var(--color-gray-50);
+}
+
+.dark .dark\:bg-gray-800 {
+  background-color: var(--color-gray-900);
+}
+
+.dark .dark\:bg-gray-900 {
+  background-color: var(--color-gray-950);
+}
+
+.dark .dark\:bg-gray-700 {
+  background-color: var(--color-gray-800);
+}
+
+/* Заголовки для темной темы */
+.jp-title {
+  color: var(--color-gray-900);
+}
+
+.dark .jp-title {
+  color: var(--color-gray-50);
+}
+
+/* Дополнительные стили для японского дизайна */
+.jp-ink {
+  color: var(--accent);
+}
+
+.jp-gold {
+  color: var(--gold);
+}
+
+.jp-bg-paper {
+  background-color: var(--background);
+}
+
+.jp-section {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+  position: relative;
+}
+
+/* Улучшенные стили для кнопки */
+.jp-button-alt {
+  background-color: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 0.5rem 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.jp-button-alt:hover {
+  background-color: var(--accent);
+  color: var(--color-gray-50);
+  transform: translateY(-0.25rem);
+}
+
+/* Улучшенные стили для карточек */
+.jp-card {
+  background-color: var(--color-gray-800);
+  color: var(--color-gray-100);
+  position: relative;
+  border-radius: 0.25rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 2px solid var(--color-gray-700);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.jp-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  border-color: var(--accent);
+}
+
+.dark .jp-card {
+  background-color: var(--color-gray-900);
+  border-color: var(--color-gray-700);
+}
+
+.dark .jp-card:hover {
+  border-color: var(--accent);
+}
+
+/* Дополнительные классы для согласованности цветовой схемы */
+.bg-primary {
+  background-color: var(--background);
+}
+
+.bg-secondary {
+  background-color: var(--secondary);
+}
+
+.bg-accent-custom {
+  background-color: var(--accent);
+}
+
+.bg-accent-light-custom {
+  background-color: var(--accent-light);
+}
+
+.bg-gold-custom {
+  background-color: var(--gold);
+}
+
+.bg-bamboo-custom {
+  background-color: var(--bamboo);
+}
+
+.text-primary {
+  color: var(--foreground);
+}
+
+.text-accent-custom {
+  color: var(--accent);
+}
+
+.text-accent-light-custom {
+  color: var(--accent-light);
+}
+
+.text-gold-custom {
+  color: var(--gold);
+}
+
+.text-bamboo-custom {
+  color: var(--bamboo);
+}
+
+.border-accent-custom {
+  border-color: var(--accent);
+}
+
+.border-gold-custom {
+  border-color: var(--gold);
+}
+
+/* Обновление стилей для улучшения внешнего вида в соответствии с новой цветовой схемой */
+.jp-card,
+.jp-service-card > div {
+  border-color: var(--color-gray-800);
+  background-color: var(--background);
+}
+
+.dark .jp-card,
+.dark .jp-service-card > div {
+  border-color: var(--color-gray-600);
+  background-color: var(--background);
+}
+
+.jp-service-card .bg-accent {
+  background-color: var(--accent);
+}
+
+.jp-service-card:hover .bg-accent {
+  animation: stamp-glow 1.5s infinite alternate;
+}
+
+.jp-divider::before,
+.jp-divider::after {
+  background-color: var(--accent);
+}
+
+.dark .jp-bg-paper {
+  background-color: var(--background);
+}
+
+/* Переопределение специфичных утилитных классов Tailwind */
+.jp-service-card:hover .bg-red-600 {
+  background-color: var(--accent);
+}
+
+.dark .bg-gray-900 {
+  background-color: var(--background);
+}
+
+.dark .bg-gray-800 {
+  background-color: var(--color-gray-100);
+}
+
+.dark .text-white {
+  color: var(--foreground);
+}
+
+.dark .text-gray-300 {
+  color: var(--color-gray-300);
+}
+
+.dark .text-gray-400 {
+  color: var(--color-gray-600);
+}
+
+.dark .text-gray-500 {
+  color: var(--color-gray-500);
+}
+
+.bg-light {
+  background-color: var(--background);
+}
+
+/* Улучшенные стили для анимации и интерактивности */
+@keyframes stamp-glow {
+  0% {
+    background-color: var(--accent);
+    box-shadow: 0 0 5px var(--accent);
+  }
+  100% {
+    background-color: var(--accent-light);
+    box-shadow: 0 0 15px var(--accent-light);
+  }
+}
+
+.gold-hover-effect:hover {
+  color: var(--gold);
+  transition: color 0.3s ease;
+}
+
+.accent-hover-effect:hover {
+  color: var(--accent);
+  transition: color 0.3s ease;
+}
+
+/* Обновленные стили для специфических компонентов */
+/* Удалю дублирующиеся селекторы hanko-seal и team-quote */
+
+/* Улучшенный эффект наведения для ссылок */
+.hover-gold-effect {
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.hover-gold-effect::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background-color: var(--gold);
+  transition: width 0.3s ease;
+}
+
+.hover-gold-effect:hover {
+  color: var(--gold);
+}
+
+.hover-gold-effect:hover::after {
+  width: 100%;
 }
