@@ -125,15 +125,37 @@ export default function BeatsPage() {
             </motion.div>
             
             {/* Beats placeholder */}
-            <div className="border-2 border-accent-custom rounded-lg p-6 bg-opacity-50 color-gray-50 shadow-lg">
+            <div className="border-2 border-accent-custom rounded-lg p-6 bg-opacity-50 color-gray-50 shadow-lg relative">
               {/* Coming soon message */}
-              <div className="text-center mb-10">
-                <h3 className="jp-heading text-2xl font-bold mb-2 text-gray-800 dark:text-white">
+              <div className="text-center mb-10 p-8">
+                <h3 className="jp-heading text-2xl font-bold mb-4 text-gray-800 dark:text-white">
                   <span className="text-accent-custom">準備中</span> PLAYER COMING SOON
                 </h3>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Our interactive beat player is being upgraded. Please check back soon!
+                <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6">
+                  Our interactive beat player is being upgraded with enhanced features for a better experience. Please check back soon!
                 </p>
+                
+                <div className="w-16 h-1 bg-accent-custom bg-opacity-50 mx-auto my-8 rounded-full"></div>
+                
+                <div className="flex justify-center space-x-2 mt-4">
+                  {[...Array(3)].map((_, i) => (
+                    <div 
+                      key={i}
+                      className="w-2 h-2 rounded-full bg-accent-custom"
+                      style={{
+                        opacity: 0.6,
+                        animation: `pulse 1.5s ease-in-out ${i * 0.3}s infinite`
+                      }}
+                    ></div>
+                  ))}
+                </div>
+                
+                <style jsx>{`
+                  @keyframes pulse {
+                    0%, 100% { transform: scale(1); opacity: 0.6; }
+                    50% { transform: scale(1.5); opacity: 1; }
+                  }
+                `}</style>
               </div>
               
               {/* Static beats list */}
@@ -187,14 +209,20 @@ export default function BeatsPage() {
                             <p className="text-xs text-gray-500 dark:text-gray-400 ml-2">{beat.duration}</p>
                           </div>
                           
-                          <button className="bg-accent-custom text-white rounded-full p-2 transform transition-all">
+                          <div className="bg-accent-custom text-white rounded-full p-2 transform transition-all opacity-50 cursor-not-allowed">
                             <FaPlay size={12} />
-                          </button>
+                          </div>
                         </div>
                       </div>
                     </div>
                   ))}
                 </div>
+              </div>
+              
+              {/* Coming soon decorative elements */}
+              <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                <div className="absolute top-5 right-5 w-16 h-16 border-t border-r border-accent-custom opacity-30"></div>
+                <div className="absolute bottom-5 left-5 w-16 h-16 border-b border-l border-accent-custom opacity-30"></div>
               </div>
             </div>
             

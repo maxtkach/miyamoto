@@ -94,6 +94,7 @@ export default function BeatPlayer() {
   const [isMuted, setIsMuted] = useState(false);
   const [isVolumeControlVisible, setIsVolumeControlVisible] = useState(false);
   const [isAudioContextInitialized, setIsAudioContextInitialized] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   
   // Используем useRef для хранения стейтов, не влияющих на рендеринг
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -106,6 +107,11 @@ export default function BeatPlayer() {
   const gainNodeRef = useRef<GainNode | null>(null);
   const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
   const audioContextCreatedRef = useRef<boolean>(false);
+  
+  // Устанавливаем флаг клиентского рендеринга после монтирования компонента
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
   
   // Инициализация аудио контекста только на клиенте и только один раз
   useEffect(() => {
@@ -124,7 +130,7 @@ export default function BeatPlayer() {
           gainNodeRef.current = audioContextRef.current.createGain();
           
           if (analyserRef.current) {
-            analyserRef.current.fftSize = 256;
+            analyserRef.current.fftSize = 128; // Уменьшено с 256 для лучшей производительности
             const bufferLength = analyserRef.current.frequencyBinCount;
             dataArrayRef.current = new Uint8Array(bufferLength);
           }
@@ -232,29 +238,26 @@ export default function BeatPlayer() {
     const draw = () => {
       if (!ctx || !analyserRef.current || !dataArrayRef.current) return;
       
+      // Оптимизация: уменьшаем частоту обновления данных
       analyserRef.current.getByteFrequencyData(dataArrayRef.current);
       
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      // Draw visualization
-      const barWidth = (canvas.width / dataArrayRef.current.length) * 2.5;
+      // Оптимизированная визуализация
+      const barWidth = (canvas.width / dataArrayRef.current.length) * 3; // Увеличиваем ширину полос
       let x = 0;
       
-      for (let i = 0; i < dataArrayRef.current.length; i++) {
-        const barHeight = (dataArrayRef.current[i] / 255) * canvas.height * 0.8;
+      for (let i = 0; i < dataArrayRef.current.length; i += 2) { // Пропускаем каждый второй элемент
+        const barHeight = (dataArrayRef.current[i] / 255) * canvas.height * 0.7;
         
-        // Japanese-style gradient colors
-        const gradient = ctx.createLinearGradient(0, canvas.height - barHeight, 0, canvas.height);
-        gradient.addColorStop(0, 'rgba(166, 5, 26, 0.8)');
-        gradient.addColorStop(1, 'rgba(199, 41, 62, 0.4)');
-        
-        ctx.fillStyle = gradient;
+        // Упрощенная цветовая схема
+        ctx.fillStyle = 'rgba(166, 5, 26, 0.6)';
         ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
         
-        // Japanese styling
-        if (i % 4 === 0) {
+        // Рисуем только каждый четвертый акцент
+        if (i % 8 === 0) {
           ctx.fillStyle = 'rgba(183, 141, 18, 0.2)';
-          ctx.fillRect(x, canvas.height - barHeight * 1.2, barWidth / 2, barHeight * 1.2);
+          ctx.fillRect(x, canvas.height - barHeight * 1.1, barWidth / 2, barHeight * 1.1);
         }
         
         x += barWidth + 1;
@@ -430,59 +433,48 @@ export default function BeatPlayer() {
   
   return (
     <div className="relative">
-      {/* Анимированные частицы в фоне */}
+      {/* Анимированные частицы в фоне - уменьшенное количество */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(10)].map((_, i) => (
+        {isClient && [...Array(3)].map((_, i) => (
           <div
             key={i}
             className="absolute rounded-full bg-accent-custom"
             style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              width: `${Math.random() * 10 + 5}px`,
-              height: `${Math.random() * 10 + 5}px`,
+              left: `${20 + i * 30}%`,
+              top: `${20 + i * 20}%`,
+              width: '8px',
+              height: '8px',
               opacity: 0.2,
-              animation: `float ${Math.random() * 10 + 10}s linear infinite`,
-              animationDelay: `${Math.random() * 5}s`,
             }}
           />
         ))}
       </div>
       
-      {/* Декоративные японские иероглифы в фоне */}
+      {/* Упрощенные декоративные японские иероглифы в фоне */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none dark:opacity-5 opacity-10">
         <div 
           className="absolute top-10 left-10 jp-heading text-[200px] text-gray-800 dark:text-gray-400"
           style={{
-            animation: 'breathe 8s ease-in-out infinite'
+            opacity: 0.3,
           }}
         >
           音
         </div>
-        <div 
-          className="absolute bottom-10 right-10 jp-heading text-[150px] text-gray-800 dark:text-gray-400"
-          style={{
-            animation: 'breathe 10s ease-in-out infinite'
-          }}
-        >
-          楽
-        </div>
       </div>
       
-      {/* Стилизованная окружность/диск в фоне */}
+      {/* Упрощенная стилизованная окружность/диск в фоне */}
       <div 
         className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full pointer-events-none"
         style={{
-          background: 'radial-gradient(circle, rgba(166, 5, 26, 0.1) 0%, rgba(166, 5, 26, 0.05) 30%, rgba(166, 5, 26, 0) 70%)',
-          opacity: isPlaying ? 0.8 : 0.3,
-          animation: isPlaying ? 'spin 40s linear infinite, pulse 4s ease-in-out infinite' : 'none'
+          background: 'radial-gradient(circle, rgba(166, 5, 26, 0.1) 0%, rgba(166, 5, 26, 0) 70%)',
+          opacity: isPlaying ? 0.5 : 0.2,
         }}
       />
 
       <div className="border-2 border-accent-custom color-gray-50 p-6 relative shadow-xl rounded-lg overflow-hidden">
         <div className="absolute inset-0 opacity-5 pointer-events-none" style={{ backgroundImage: 'var(--paper-texture-light)' }}></div>
         
-        {/* Декоративный бордюр в японском стиле */}
+        {/* Упрощенный декоративный бордюр */}
         <div className="absolute inset-0 pointer-events-none opacity-10">
           <div className="absolute top-3 right-3 w-20 h-20 border-t-2 border-r-2 border-accent-custom"></div>
           <div className="absolute bottom-3 left-3 w-20 h-20 border-b-2 border-l-2 border-accent-custom"></div>
@@ -491,7 +483,7 @@ export default function BeatPlayer() {
       {/* Visualization Canvas */}
       <canvas 
         ref={canvasRef} 
-          className="w-full h-40 mb-6 border border-accent-custom color-gray-50 rounded-lg shadow-inner"
+        className="w-full h-40 mb-6 border border-accent-custom color-gray-50 rounded-lg shadow-inner"
       />
       
       {/* Current Beat Player */}
@@ -503,37 +495,14 @@ export default function BeatPlayer() {
                 <img 
                   src={currentBeat.coverImage} 
                   alt={currentBeat.title} 
-                    className="w-full h-auto object-cover transition-transform duration-1000"
-                    style={{
-                      transform: isPlaying ? 'scale(1.05)' : 'scale(1)'
-                    }}
-                  />
-                  
-                  {/* Эффект винилового диска */}
-                  <div 
-                    className="absolute inset-0 rounded-full bg-black opacity-0 transition-opacity duration-500"
-                    style={{
-                      width: '200%',
-                      height: '200%',
-                      top: '-50%',
-                      left: '-50%',
-                      backgroundImage: `
-                        radial-gradient(circle, transparent 30%, rgba(0,0,0,0.5) 30%, transparent 35%, rgba(0,0,0,0.5) 35%, transparent 40%, rgba(0,0,0,0.5) 40%, transparent 45%, rgba(0,0,0,0.5) 45%, transparent 50%, rgba(0,0,0,0.5) 50%, transparent 55%, rgba(0,0,0,0.5) 55%)
-                      `,
-                      backgroundSize: '120% 120%',
-                      backgroundPosition: 'center',
-                      zIndex: 0,
-                      opacity: isPlaying ? 0.4 : 0,
-                      animation: isPlaying ? 'spin 10s linear infinite' : 'none'
-                    }}
-                  />
+                  className="w-full h-auto object-cover"
+                />
                   
                   {/* Красный индикатор воспроизведения */}
                   <div 
                     className="absolute top-3 right-3 w-3 h-3 rounded-full bg-accent-custom shadow-lg transition-opacity"
                     style={{
                       opacity: isPlaying ? 1 : 0,
-                      animation: isPlaying ? 'pulse 2s infinite' : 'none'
                     }}
                   />
                   
@@ -577,9 +546,6 @@ export default function BeatPlayer() {
                   <button 
                     onClick={togglePlayPause}
                       className="bg-accent-custom hover:bg-accent-light-custom text-white rounded-full p-3 transition-colors transform hover:scale-110 active:scale-95 shadow-md"
-                      style={{
-                        boxShadow: isPlaying ? '0 0 15px rgba(166, 5, 26, 0.6)' : '0 4px 6px rgba(0, 0, 0, 0.1)',
-                      }}
                   >
                     {isPlaying ? <FaPause size={16} /> : <FaPlay size={16} />}
                   </button>
@@ -602,7 +568,6 @@ export default function BeatPlayer() {
                       style={{ 
                         left: `${(currentTime / duration) * 100}%`, 
                         marginLeft: '-6px',
-                        animation: isPlaying ? 'pulse 2s infinite' : 'none'
                       }}
                     ></div>
                   </div>
@@ -681,151 +646,99 @@ export default function BeatPlayer() {
         />
       </div>
       
-      {/* Beats List */}
-        <div>
-          <h3 className="jp-heading text-2xl font-bold mb-4 text-white">
-            <span className="text-accent-custom">ビート</span> BEATS
+      {/* Beats List - оптимизированный список */}
+      <div>
+        <h3 className="jp-heading text-2xl font-bold mb-4 text-white">
+          <span className="text-accent-custom">ビート</span> BEATS
         </h3>
         
-          {/* Глобальные стили для анимаций */}
-          <style jsx global>{`
-            @keyframes spin {
-              from { transform: rotate(0deg); }
-              to { transform: rotate(360deg); }
-            }
-            
-            @keyframes pulse {
-              0% { transform: scale(1); opacity: 0.8; }
-              50% { transform: scale(1.2); opacity: 1; }
-              100% { transform: scale(1); opacity: 0.8; }
-            }
-            
-            @keyframes float {
-              0% { transform: translateY(0px); }
-              50% { transform: translateY(-20px); }
-              100% { transform: translateY(0px); }
-            }
-            
-            @keyframes breathe {
-              0% { opacity: 0.1; transform: translateY(0); }
-              50% { opacity: 0.2; transform: translateY(-10px); }
-              100% { opacity: 0.1; transform: translateY(0); }
-            }
-          `}</style>
-          
-          {/* Список битов в вертикальном отображении */}
-          <div className="mt-6 space-y-4">
-            {beats.map((beat) => (
+        {/* Список битов в вертикальном отображении - с упрощенными эффектами */}
+        <div className="mt-6 space-y-4">
+          {beats.map((beat) => (
+            <div 
+              key={beat.id}
+              className={`jp-card group flex cursor-pointer transition-all duration-300 color-gray-50 relative overflow-hidden h-24 ${
+                currentBeat?.id === beat.id ? 'ring-2 ring-accent-custom' : ''
+              }`}
+              onClick={() => handlePlayBeat(beat)}
+            >
+              {/* Фоновое изображение - с упрощенным эффектом */}
               <div 
-                key={beat.id}
-                className={`jp-card group flex cursor-pointer transition-all duration-300 color-gray-50 relative overflow-hidden h-24 ${
-                  currentBeat?.id === beat.id ? 'ring-2 ring-accent-custom' : ''
-                }`}
-                onClick={() => handlePlayBeat(beat)}
+                className="h-full w-24 flex-shrink-0 bg-center bg-cover"
+                style={{ backgroundImage: `url(${beat.coverImage})` }}
               >
-                {/* Фоновое изображение */}
-                <div 
-                  className="h-full w-24 flex-shrink-0 transition-transform duration-700 group-hover:scale-110 bg-center bg-cover"
-                  style={{ backgroundImage: `url(${beat.coverImage})` }}
-                >
-                  {/* Тёмный оверлей */}
-                  <div className="absolute inset-0 bg-black bg-opacity-60 group-hover:bg-opacity-40 transition-all duration-300"></div>
-                </div>
-                
-                {/* Контент карточки */}
-                <div className="p-3 flex-grow flex flex-col justify-between">
-                  <div className="flex justify-between">
-                    <div>
-                      <h4 className="text-md font-bold tracking-wide group-hover:text-accent-custom transition-colors text-white">
-                        {beat.title}
-                      </h4>
-                      <p className="text-sm text-gray-300">{beat.artist}</p>
-                    </div>
-                    
-                    <div className="flex items-center space-x-3">
-                      <div className="bg-accent-custom bg-opacity-80 px-2 py-1 text-xs font-medium rounded-sm shadow-sm text-white">
-                        {beat.category}
-                      </div>
-                      <button 
-                        onClick={(e) => toggleFavorite(beat.id, e)}
-                        className="text-white hover:text-accent-custom transition-colors transform hover:scale-110 p-1"
-                      >
-                        {favorites.includes(beat.id) ? <FaHeart size={16} /> : <FaRegHeart size={16} />}
-                      </button>
-                    </div>
+                {/* Тёмный оверлей */}
+                <div className="absolute inset-0 bg-black bg-opacity-60 group-hover:bg-opacity-40 transition-all duration-300"></div>
+              </div>
+              
+              {/* Контент карточки */}
+              <div className="p-3 flex-grow flex flex-col justify-between">
+                <div className="flex justify-between">
+                  <div>
+                    <h4 className="text-md font-bold tracking-wide group-hover:text-accent-custom transition-colors text-white">
+                      {beat.title}
+                    </h4>
+                    <p className="text-sm text-gray-300">{beat.artist}</p>
                   </div>
                   
-                  <div className="flex items-center justify-between mt-2">
-                    <div className="flex items-center space-x-2">
-                      <div className="bg-accent-custom bg-opacity-20 text-white text-xs p-1 rounded-sm">
-                        {beat.key}
-                      </div>
-                      <div className="bg-accent-custom bg-opacity-20 text-white text-xs p-1 rounded-sm">
-                        {beat.bpm} BPM
-                      </div>
-                      <p className="text-xs text-gray-400 ml-2">{beat.duration}</p>
+                  <div className="flex items-center space-x-3">
+                    <div className="bg-accent-custom bg-opacity-80 px-2 py-1 text-xs font-medium rounded-sm shadow-sm text-white">
+                      {beat.category}
+                    </div>
+                    <button 
+                      onClick={(e) => toggleFavorite(beat.id, e)}
+                      className="text-white hover:text-accent-custom transition-colors transform hover:scale-110 p-1"
+                    >
+                      {favorites.includes(beat.id) ? <FaHeart size={16} /> : <FaRegHeart size={16} />}
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between mt-2">
+                  <div className="flex items-center space-x-2">
+                    <div className="bg-accent-custom bg-opacity-20 text-white text-xs p-1 rounded-sm">
+                      {beat.key}
+                    </div>
+                    <div className="bg-accent-custom bg-opacity-20 text-white text-xs p-1 rounded-sm">
+                      {beat.bpm} BPM
+                    </div>
+                    <p className="text-xs text-gray-400 ml-2">{beat.duration}</p>
+                  </div>
+                  
+                  <div className="flex items-center space-x-3">
+                    <div 
+                      className="w-24 bg-gray-700 bg-opacity-60 h-1 rounded overflow-hidden"
+                    >
+                      {currentBeat?.id === beat.id && (
+                        <div 
+                          className="h-full bg-accent-custom" 
+                          style={{ width: `${(currentTime / duration) * 100}%` }}
+                        ></div>
+                      )}
                     </div>
                     
-                    <div className="flex items-center space-x-3">
-                      <div 
-                        className="w-24 bg-gray-700 bg-opacity-60 h-1 rounded overflow-hidden"
-                      >
-                        {currentBeat?.id === beat.id && (
-                          <div 
-                            className="h-full bg-accent-custom" 
-                            style={{ width: `${(currentTime / duration) * 100}%` }}
-                          ></div>
-                        )}
-                      </div>
-                      
-                      <button 
-                        onClick={(e) => { 
-                          e.stopPropagation(); 
-                          handlePlayBeat(beat);
-                        }}
-                        className={`rounded-full p-2 transform transition-all ${
-                          currentBeat?.id === beat.id && isPlaying 
-                            ? 'bg-accent-custom text-white shadow-glow-accent' 
-                            : 'bg-white text-accent-custom scale-0 group-hover:scale-100'
-                        }`}
-                      >
-                        {currentBeat?.id === beat.id && isPlaying ? (
-                          <FaPause size={12} />
-                        ) : (
-                          <FaPlay size={12} />
-                        )}
-                      </button>
-                    </div>
+                    <button 
+                      onClick={(e) => { 
+                        e.stopPropagation(); 
+                        handlePlayBeat(beat);
+                      }}
+                      className={`rounded-full p-2 transform transition-all ${
+                        currentBeat?.id === beat.id && isPlaying 
+                          ? 'bg-accent-custom text-white shadow-glow-accent' 
+                          : 'bg-white text-accent-custom scale-0 group-hover:scale-100'
+                      }`}
+                    >
+                      {currentBeat?.id === beat.id && isPlaying ? (
+                        <FaPause size={12} />
+                      ) : (
+                        <FaPlay size={12} />
+                      )}
+                    </button>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-          
-          {/* Дополнительные стили для теней */}
-          <style jsx global>{`
-            .shadow-glow-accent {
-              box-shadow: 0 0 10px rgba(166, 5, 26, 0.7);
-            }
-            
-            .hide-scrollbar::-webkit-scrollbar {
-              height: 4px;
-            }
-            
-            .hide-scrollbar::-webkit-scrollbar-track {
-              background: rgba(0, 0, 0, 0.1);
-              border-radius: 4px;
-            }
-            
-            .hide-scrollbar::-webkit-scrollbar-thumb {
-              background: var(--accent);
-              border-radius: 4px;
-            }
-            
-            .hide-scrollbar::-webkit-scrollbar-thumb:hover {
-              background: var(--accent-light);
-            }
-          `}</style>
+            </div>
+          ))}
         </div>
       </div>
     </div>

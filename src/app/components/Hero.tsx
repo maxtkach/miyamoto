@@ -16,6 +16,7 @@ export default function Hero() {
     duration: number;
     delay: number;
   }>>([]);
+  const [isClient, setIsClient] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const audioVisualizerRef = useRef<HTMLCanvasElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -39,8 +40,11 @@ export default function Hero() {
   
   // Инициализация аудио-контекста и анализатора для визуализации
   useEffect(() => {
+    // Устанавливаем флаг, что мы на клиенте
+    setIsClient(true);
+    
     if (typeof window !== 'undefined') {
-      // Генерация частиц только на клиенте
+      // Генерация частиц только на клиенте после подтверждения гидратации
       const newParticles = Array.from({ length: 15 }).map((_, i) => ({
         id: i,
         x: Math.random() * 100,
@@ -230,9 +234,9 @@ export default function Hero() {
           ))}
         </div>
         
-        {/* Случайные частицы */}
+        {/* Случайные частицы - рендерим только на клиенте */}
         <div className="absolute inset-0 overflow-hidden">
-          {particles.map((particle) => (
+          {isClient && particles.map((particle) => (
             <motion.div
               key={particle.id}
               className="absolute rounded-full bg-accent-custom"
@@ -272,11 +276,13 @@ export default function Hero() {
         音
       </motion.div>
       
-      {/* Аудио-визуализатор */}
-      <canvas 
-        ref={audioVisualizerRef} 
-        className="absolute inset-0 w-full h-full pointer-events-none"
-      />
+      {/* Аудио-визуализатор - рендерим только на клиенте */}
+      {isClient && (
+        <canvas 
+          ref={audioVisualizerRef} 
+          className="absolute inset-0 w-full h-full pointer-events-none"
+        />
+      )}
       
       {/* Основной контент */}
       <div className="container-custom relative z-10">
