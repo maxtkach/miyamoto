@@ -36,7 +36,7 @@ const teamMembers: TeamMember[] = [
     jpRole: 'サウンドエンジニア & ビートメーカー',
     quote: 'Music is the universal language that connects all cultures and spirits.',
     seal: '音',
-    image: '/images/team-member-1.jpg',
+    image: './images/team-member-1.jpg',
     bio: 'With over 8 years of experience in sound design and music production, Jamil specializes in creating unique beats that blend traditional Japanese sounds with modern electronic music. His innovative approach has earned him recognition in the industry.',
     skills: [
       { name: 'Beat Production', level: 95, jpName: 'ビート制作' },
@@ -60,7 +60,7 @@ const teamMembers: TeamMember[] = [
     jpRole: 'サウンドエンジニア',
     quote: 'Perfect sound is not just heard — it is felt with every cell of your body.',
     seal: '響',
-    image: '/images/team-member-2.jpg',
+    image: './images/team-member-2.jpg',
     bio: 'Max has dedicated his career to perfecting the art of sound engineering. His meticulous attention to detail and deep understanding of acoustics allow him to create immersive audio experiences that transport listeners to different worlds.',
     skills: [
       { name: 'Mastering', level: 98, jpName: 'マスタリング' },
@@ -149,7 +149,7 @@ export default function TeamSection() {
           top: mouseBrushPosition.y - 150,
           width: 300,
           height: 300,
-          backgroundImage: 'url(/images/ink-brush.svg)',
+          backgroundImage: 'url(./images/ink-brush.svg)',
           backgroundSize: 'contain',
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
@@ -162,7 +162,7 @@ export default function TeamSection() {
       {/* Decorative Japanese wave pattern background */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{
-          backgroundImage: 'url(/images/japanese-wave.svg)',
+          backgroundImage: 'url(./images/japanese-wave.svg)',
           backgroundSize: '100px',
           backgroundRepeat: 'repeat',
           transform: 'rotate(5deg) scale(1.5)',
@@ -209,118 +209,55 @@ export default function TeamSection() {
             >
               {teamMembers.map((member, index) => (
                 <motion.div 
-                  key={member.id} 
-                  className="relative"
-                  initial={{ opacity: 0, y: 50 }}
-                  animate={{ 
-                    opacity: loaded ? 1 : 0, 
-                    y: loaded ? 0 : 50,
-                    scale: hoveredMember === member.id ? 1.05 : 1,
-                    boxShadow: hoveredMember === member.id ? "0px 10px 30px rgba(0, 0, 0, 0.15)" : "0px 5px 15px rgba(0, 0, 0, 0.05)"
+                  key={member.id}
+                  className={`team-portrait relative overflow-hidden rounded-lg jp-border transition-all duration-300 ${
+                    hoveredMember === member.id ? 'scale-105' : 'scale-100'
+                  }`}
+                  onMouseEnter={() => setHoveredMember(member.id)}
+                  onMouseLeave={() => setHoveredMember(null)}
+                  onClick={() => handleSelectMember(member.id)}
+                  style={{
+                    backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.7)), url(${member.image})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
                   }}
-                  transition={{ 
-                    delay: index * 0.2,
-                    duration: 0.8,
-                    ease: [0.23, 1, 0.32, 1]
-                  }}
-                  style={{ 
-                    perspective: '1000px'
-                  }}
-                  whileHover={{ scale: 1.03 }}
                 >
-                  <div 
-                    className="team-card relative bg-background shadow-xl rounded-lg overflow-hidden cursor-pointer color-gray-50"
-                    style={{ 
-                      transition: 'all 0.6s cubic-bezier(0.23, 1, 0.32, 1)'
-                    }}
-                    onMouseEnter={() => setHoveredMember(member.id)}
-                    onMouseLeave={() => setHoveredMember(null)}
-                    onClick={() => handleSelectMember(member.id)}
-                  >
-                    <div className="md:flex">
-                      {/* Image section with parallax effect */}
-                      <div className="md:w-2/5 relative overflow-hidden">
-                        <div 
-                          className="h-72 md:h-full w-full"
-                          style={{
-                            backgroundImage: `url(${member.image})`,
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center',
-                            transform: hoveredMember === member.id ? 'scale(1.1)' : 'scale(1)',
-                            transition: 'all 0.7s cubic-bezier(0.23, 1, 0.32, 1)'
-                          }}
-                        />
-                        
-                        {/* Overlay with gradient */}
-                        <div 
-                          className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"
-                          style={{
-                            opacity: hoveredMember === member.id ? 0.8 : 0.5,
-                            transition: 'opacity 0.5s ease'
-                          }}
-                        />
-                        
-                        {/* Japanese seal */}
-                        <div 
-                          className="hanko-seal absolute top-4 right-4 z-10"
-                          style={{
-                            transform: hoveredMember === member.id ? 'rotate(15deg) scale(1.2)' : 'rotate(0deg) scale(1)',
-                            transition: 'all 0.5s ease'
-                          }}
-                        >
-                          <span className="text-3xl">{member.seal}</span>
-                        </div>
+                  {/* Team member info */}
+                  <div className="absolute bottom-0 left-0 w-full p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-xl font-bold text-white">{member.name}</h3>
+                        <p className="text-accent-custom jp-heading">{member.jpRole}</p>
                       </div>
-                      
-                      {/* Content section */}
-                      <div className="md:w-3/5 p-6 md:p-8 relative">
-                        <div className="absolute top-3 right-3 h-16 w-16 border-t border-r border-accent-custom opacity-30" />
-                        <div className="absolute bottom-3 left-3 h-16 w-16 border-b border-l border-accent-custom opacity-30" />
-                        
-                        <h3 className="text-2xl font-bold text-gray-900 mb-1">{member.name}</h3>
-                        <p className="jp-heading text-accent-custom text-sm mb-2">{member.jpRole}</p>
-                        <p className="text-gray-700 text-sm font-medium mb-4">{member.role}</p>
-                        
-                        <div className="h-px w-full bg-gray-200 mb-4">
-                          <div className="h-full w-1/3 bg-accent-custom" />
-                        </div>
-                        
-                        <p className="text-gray-700 text-sm mb-4 line-clamp-3">
-                          {member.bio}
-                        </p>
-                        
-                        {/* Skills preview */}
-                        <div className="mt-4 space-y-2">
-                          {member.skills.slice(0, 2).map((skill, idx) => (
-                            <div key={idx} className="flex items-center">
-                              <span className="text-xs text-gray-700 w-1/3">{skill.name}</span>
-                              <div className="w-2/3 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                                <motion.div 
-                                  className="h-full bg-accent-custom"
-                                  initial={{ width: 0 }}
-                                  animate={{ width: hoveredMember === member.id ? `${skill.level}%` : '0%' }}
-                                  transition={{ delay: 0.3 + idx * 0.1, duration: 1, ease: "easeOut" }}
-                                />
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                        
-                        {/* View Profile button */}
-                        <motion.div 
-                          className="mt-4 flex justify-end"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: hoveredMember === member.id ? 1 : 0 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          <div className="jp-button-alt text-xs inline-flex items-center">
-                            <span>VIEW PROFILE</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 ml-1" viewBox="0 0 20 20" fill="currentColor">
-                              <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                            </svg>
-                          </div>
-                        </motion.div>
-                      </div>
+                      <div className="hanko-seal">{member.seal}</div>
+                    </div>
+                    
+                    <p className="mt-2 text-sm text-gray-200 italic opacity-80">
+                      &ldquo;{member.quote}&rdquo;
+                    </p>
+                    
+                    <div className="flex space-x-3 mt-4">
+                      {member.social.instagram && (
+                        <a href={member.social.instagram} className="text-gray-300 hover:text-accent-custom transition-colors">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                          </svg>
+                        </a>
+                      )}
+                      {member.social.soundcloud && (
+                        <a href={member.social.soundcloud} className="text-gray-300 hover:text-accent-custom transition-colors">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-6.417 14.583c-.354-.318-.583-.79-.583-1.323 0-.532.229-1.003.583-1.323v2.646zm1.167.417c-.212 0-.323-.103-.323-.316v-3.432c0-.213.111-.316.323-.316.213 0 .323.103.323.316v3.432c0 .213-.11.316-.323.316zm1.167 0c-.213 0-.323-.103-.323-.316v-3.743c0-.213.11-.317.323-.317.213 0 .323.104.323.317v3.743c0 .213-.11.316-.323.316zm1.166 0c-.213 0-.323-.103-.323-.316v-5.047c0-.213.11-.316.323-.316.213 0 .323.103.323.316v5.047c0 .213-.11.316-.323.316zm1.167 0c-.213 0-.323-.103-.323-.316v-5.047c0-.213.11-.316.323-.316.213 0 .323.103.323.316v5.047c0 .213-.11.316-.323.316zm1.166 0c-.212 0-.323-.103-.323-.316v-4.737c0-.213.111-.316.323-.316.214 0 .324.103.324.316v4.737c0 .213-.109.316-.324.316zm6.126.009c-.213 0-.323-.103-.323-.316v-3.437c.001-.212.11-.316.323-.316.213 0 .323.104.323.316v3.437c0 .213-.11.316-.323.316zm-3.646-.009c-.213 0-.323-.103-.323-.316v-4.123c0-.213.11-.316.323-.316.213 0 .323.103.323.316v4.123c0 .213-.11.316-.323.316zm1.166 0c-.213 0-.323-.103-.323-.316v-3.649c0-.213.11-.316.323-.316.213 0 .323.103.323.316v3.649c0 .213-.11.316-.323.316zm1.167 0c-.213 0-.323-.103-.323-.316v-3.031c0-.213.11-.316.323-.316.213 0 .323.103.323.316v3.031c0 .213-.11.316-.323.316zm1.166 0c-.213 0-.324-.103-.324-.316v-3.432c0-.213.111-.316.324-.316.213 0 .323.103.323.316v3.432c0 .213-.11.316-.323.316z"/>
+                          </svg>
+                        </a>
+                      )}
+                      {member.social.linkedin && (
+                        <a href={member.social.linkedin} className="text-gray-300 hover:text-accent-custom transition-colors">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                          </svg>
+                        </a>
+                      )}
                     </div>
                   </div>
                 </motion.div>
@@ -427,11 +364,11 @@ export default function TeamSection() {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.6, duration: 0.6 }}
                               >
-                                <div className="absolute -top-2 -left-2 text-3xl text-accent-custom opacity-20">"</div>
+                                <div className="absolute -top-2 -left-2 text-3xl text-accent-custom opacity-20">&ldquo;</div>
                                 <div className="relative z-10">
                                   {teamMembers.find(m => m.id === selectedMember)?.quote}
                                 </div>
-                                <div className="absolute -bottom-2 -right-2 text-3xl text-accent-custom opacity-20">"</div>
+                                <div className="absolute -bottom-2 -right-2 text-3xl text-accent-custom opacity-20">&rdquo;</div>
                               </motion.div>
                             </div>
                             

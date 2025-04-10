@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { motion, useAnimation } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 interface SakuraPetal {
   id: number;
@@ -69,7 +69,7 @@ export default function SakuraBackground() {
         return prevPetals.map(petal => {
           let newY = petal.y + petal.ySpeed;
           let newX = petal.x + petal.xMove;
-          let newRotation = petal.rotation + petal.rotationSpeed;
+          const newRotation = petal.rotation + petal.rotationSpeed;
           
           // Reset petal if it's gone off screen
           if (newY > windowSize.height) {
@@ -92,7 +92,7 @@ export default function SakuraBackground() {
     }, 50);
     
     return () => clearInterval(intervalId);
-  }, [windowSize]);
+  }, [windowSize.height, windowSize.width]);
   
   return (
     <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0">

@@ -25,13 +25,6 @@ export async function POST(request: Request) {
       ${message}
     `;
     
-    // Формируем письмо
-    const emailData = {
-      to: to_email,
-      subject: `New contact from ${from_name} - Miyamoto Soundworks`,
-      text: emailBody,
-    };
-    
     // Отправляем через Email.js с жестко закодированными параметрами
     const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
       method: 'POST',

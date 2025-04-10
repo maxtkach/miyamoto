@@ -1,12 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, useScroll, useTransform, useSpring, useMotionValue, useAnimationFrame } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
 
 export default function Hero() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isVisible, setIsVisible] = useState(false);
   const [isInteractive, setIsInteractive] = useState(true);
   const [lastMoveTime, setLastMoveTime] = useState(Date.now());
   const [particles, setParticles] = useState<Array<{
@@ -52,6 +51,7 @@ export default function Hero() {
       }));
       setParticles(newParticles);
       
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
       analyserRef.current = audioContextRef.current.createAnalyser();
       analyserRef.current.fftSize = 64;
@@ -82,6 +82,7 @@ export default function Hero() {
         audioContextRef.current?.close();
       };
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
   // Обработчик движения мыши
@@ -129,7 +130,7 @@ export default function Hero() {
         container.removeEventListener('mouseenter', handleMouseEnter);
       }
     };
-  }, []);
+  }, [isInteractive, lastMoveTime, cursorOpacity]);
   
   // Отрисовка аудио-визуализатора
   const drawAudioVisualizer = () => {
