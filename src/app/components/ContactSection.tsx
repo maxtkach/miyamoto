@@ -370,16 +370,32 @@ export default function ContactSection() {
     
     // Получаем форму из события
     const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+    
+    // Получаем значения полей
+    const name = formData.get('from_name') as string;
+    const email = formData.get('from_email') as string;
+    const service = formData.get('service_type') as string;
+    const message = formData.get('message') as string;
     
     setIsSubmitting(true);
     setErrorMessage(null);
     
     try {
-      // Отправляем форму напрямую через EmailJS
-      const result = await emailjs.sendForm(
+      // Создаем объект с параметрами для шаблона EmailJS
+      const templateParams = {
+        to_email: 'maxtkach4422@gmail.com',
+        from_name: name,
+        from_email: email,
+        service_type: service || 'Not specified',
+        message: message
+      };
+      
+      // Отправляем форму через EmailJS с явно указанными параметрами
+      const result = await emailjs.send(
         'service_p5m589h', 
         'template_6c1adja', 
-        form, 
+        templateParams,
         'aOBOUxfnanX1UxKvZ'
       );
       
