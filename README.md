@@ -29,6 +29,45 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
+## Deploy on GitHub Pages
+
+This project is configured for deployment on GitHub Pages. The configuration includes:
+
+```js
+// next.config.js
+module.exports = {
+  output: 'export',
+  basePath: '/miyamoto',
+  assetPrefix: '/miyamoto/',
+  // ...other configuration
+};
+```
+
+To deploy to GitHub Pages:
+
+1. Build the project:
+```bash
+npm run build
+```
+
+2. The output will be in the `out` directory.
+
+3. Create a `.nojekyll` file in the `out` directory to bypass Jekyll processing:
+```bash
+touch out/.nojekyll
+```
+
+4. Push the `out` directory to the `gh-pages` branch of your GitHub repository:
+```bash
+git subtree push --prefix out origin gh-pages
+```
+
+### Important Notes
+
+- All asset paths in the codebase include the `/miyamoto` prefix.
+- When adding new assets or links, make sure to add this prefix to ensure they work on GitHub Pages.
+- The application will be accessible at `https://yourusername.github.io/miyamoto`.
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
