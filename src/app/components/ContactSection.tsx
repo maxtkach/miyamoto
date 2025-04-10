@@ -373,31 +373,34 @@ export default function ContactSection() {
     const formData = new FormData(form);
     
     // Получаем значения полей
-    const name = formData.get('from_name') as string;
-    const email = formData.get('from_email') as string;
-    const service = formData.get('service_type') as string;
+    const name = formData.get('user_name') as string;
+    const email = formData.get('user_email') as string;
+    const service = formData.get('service') as string;
     const message = formData.get('message') as string;
     
     setIsSubmitting(true);
     setErrorMessage(null);
     
     try {
-      // Создаем объект с параметрами для шаблона EmailJS
+      // Минимальный набор параметров для EmailJS
       const templateParams = {
-        to_email: 'maxtkach4422@gmail.com',
-        from_name: name,
-        from_email: email,
-        service_type: service || 'Not specified',
-        message: message
+        user_name: name,         // Имя отправителя
+        user_email: email,       // Email отправителя
+        service: service || 'Not specified',  // Тип услуги
+        message: message,        // Текст сообщения
       };
       
-      // Отправляем форму через EmailJS с явно указанными параметрами
+      console.log('Sending email with params:', templateParams);
+      
+      // Отправляем через EmailJS с правильным сервисом и шаблоном
       const result = await emailjs.send(
-        'service_p5m589h', 
-        'template_6c1adja', 
-        templateParams,
-        'aOBOUxfnanX1UxKvZ'
+        'service_p5m589h',        // ID сервиса EmailJS
+        'template_6c1adja',       // ID шаблона EmailJS
+        templateParams,          // Параметры для заполнения шаблона
+        'aOBOUxfnanX1UxKvZ'      // Публичный ключ EmailJS
       );
+      
+      console.log('EmailJS response:', result);
       
       if (result.status !== 200) {
         throw new Error('Failed to send message');
@@ -525,9 +528,6 @@ export default function ContactSection() {
               <h3 className="text-2xl font-bold text-gray-900 mb-6">Order Form</h3>
               
               <form className="space-y-6" onSubmit={handleSubmit}>
-                {/* Скрытое поле to_email для EmailJS */}
-                <input type="hidden" name="to_email" value="maxtkach4422@gmail.com" />
-                
                 <motion.div
                   whileHover={{ y: -2 }}
                   onHoverStart={() => setHoverField('name')}
@@ -543,7 +543,7 @@ export default function ContactSection() {
                     <input 
                       type="text" 
                       id="name" 
-                      name="from_name" 
+                      name="user_name" 
                       className="w-full px-4 py-2 border-b-2 border-gray-300 focus:border-accent-custom focus:ring-0 bg-transparent text-gray-800"
                       required 
                     />
@@ -569,7 +569,7 @@ export default function ContactSection() {
                     <input 
                       type="email" 
                       id="email" 
-                      name="from_email" 
+                      name="user_email" 
                       className="w-full px-4 py-2 border-b-2 border-gray-300 focus:border-accent-custom focus:ring-0 bg-transparent text-gray-800"
                       required 
                     />
@@ -594,7 +594,7 @@ export default function ContactSection() {
                   <div className="relative">
                     <select 
                       id="service" 
-                      name="service_type" 
+                      name="service" 
                       className="w-full px-4 py-2 border-b-2 border-gray-300 focus:border-accent-custom focus:ring-0 bg-transparent text-gray-800 appearance-none"
                     >
                       <option value="">Select service</option>
