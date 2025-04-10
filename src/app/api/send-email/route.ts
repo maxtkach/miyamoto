@@ -40,7 +40,7 @@ export async function POST(request: Request) {
           from_name: from_name,
           from_email: from_email,
           service_type: service_type,
-          message: message,
+          message: emailBody,
         },
       }),
     });
