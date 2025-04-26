@@ -59,26 +59,26 @@ export default function ContactSection() {
     return () => clearTimeout(timer);
   }, []);
   
-  // Создание начальных частиц и символов
+  // Создание начальных частиц и символов - уменьшено количество частиц
   useEffect(() => {
     // Создаем начальные частицы
     const initialParticles: Particle[] = [];
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 15; i++) { // Уменьшили с 30 до 15 частиц
       initialParticles.push(createParticle());
     }
     setParticles(initialParticles);
     
     // Создаем плавающие японские символы
     const initialSymbols: CalligraphySymbol[] = [];
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 5; i++) { // Уменьшили с 10 до 5 символов
       initialSymbols.push(createCalligraphySymbol());
     }
     setCalligraphySymbols(initialSymbols);
     
-    // Запускаем анимацию
+    // Запускаем анимацию с меньшей частотой обновления
     const animationInterval = setInterval(() => {
       updateParticlesAndSymbols();
-    }, 50);
+    }, 100); // Увеличили интервал с 50 до 100 мс
     
     return () => clearInterval(animationInterval);
   }, []);
@@ -329,7 +329,7 @@ export default function ContactSection() {
   const createInkSplash = (x: number, y: number) => {
     // Добавляем частицы в форме брызг
     const splashParticles: Particle[] = [];
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) { // Уменьшили с 20 до 10 частиц
       splashParticles.push({
         id: Math.random(),
         x,
@@ -373,6 +373,51 @@ export default function ContactSection() {
       if (formRef.current) {
         const rect = formRef.current.getBoundingClientRect();
         createInkSplash(rect.width * 0.7, rect.height * 0.3);
+      }
+      
+      // Стилизуем iframe после загрузки
+      const iframe = document.querySelector('iframe');
+      if (iframe) {
+        // Пытаемся добавить стили к содержимому iframe
+        try {
+          iframe.onload = () => {
+            const iframeDocument = iframe.contentDocument || iframe.contentWindow?.document;
+            if (iframeDocument) {
+              // Создаем стиль для iframe
+              const style = iframeDocument.createElement('style');
+              style.textContent = `
+                body { 
+                  background: rgba(30, 30, 30, 0.9) !important; 
+                  color: #fff !important;
+                  font-family: inherit !important;
+                }
+                .freebirdFormviewerViewHeaderTitleRow { display: none !important; }
+                .freebirdFormviewerViewFooterFooterContainer { display: none !important; }
+                .freebirdFormviewerViewNavigationNavControls { display: none !important; }
+                .freebirdFormviewerViewFooterEmbeddedBackground { display: none !important; }
+                .freebirdThemedFilledButtonM2 { 
+                  background-color: #FF5555 !important; 
+                  color: white !important;
+                  border-radius: 0 !important;
+                  font-family: inherit !important;
+                }
+                input, textarea { 
+                  background-color: rgba(50, 50, 50, 0.2) !important; 
+                  color: white !important;
+                  border-bottom: 2px solid #FF5555 !important;
+                }
+                .freebirdFormviewerComponentsQuestionBaseTitle { 
+                  color: #ddd !important; 
+                  font-family: inherit !important;
+                }
+                .freebirdFormviewerComponentsQuestionRadioChoice { color: #ddd !important; }
+              `;
+              iframeDocument.head.appendChild(style);
+            }
+          };
+        } catch (e) {
+          console.log('Не удалось стилизовать iframe из-за ограничений безопасности');
+        }
       }
     }, 1000);
   };
@@ -467,10 +512,10 @@ export default function ContactSection() {
               {/* Контейнер для формы с стилизацией */}
               <div className="w-full relative overflow-hidden">
                 {!iframeLoaded && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 z-10">
+                  <div className="absolute inset-0 flex items-center justify-center color-gray-50 bg-opacity-90 z-10">
                     <div className="flex flex-col items-center">
                       <div className="jp-heading text-2xl text-accent-custom">読み込み中</div>
-                      <div className="text-sm text-gray-600 mt-2">Loading form...</div>
+                      <div className="text-sm text-gray-300 mt-2">Loading form...</div>
                       <div className="flex space-x-3 mt-4">
                         {[0, 1, 2].map((dot) => (
                           <motion.div
@@ -493,20 +538,34 @@ export default function ContactSection() {
                   </div>
                 )}
                 
-                {/* Google Forms iframe */}
-                <iframe 
-                  src="https://docs.google.com/forms/d/e/1FAIpQLScbf9wCPF1oq357su40D17zAyCrep30QeGz-cF6L8MIInQM5Q/viewform?embedded=true" 
-                  width="100%" 
-                  height="550" 
-                  style={{ 
-                    border: 'none', 
-                    background: 'transparent', 
-                  }}
-                  onLoad={handleIframeLoad}
-                  title="Contact Form"
-                >
-                  Загрузка...
-                </iframe>
+                {/* Стилизованный контейнер для Google Forms iframe */}
+                <div className="w-full bg-gray-900 rounded-md overflow-hidden shadow-lg relative">
+                  {/* Маска для скрытия брендинга Google */}
+                  <div className="absolute top-0 left-0 w-full h-16 bg-gray-900 z-10"></div>
+                  <div className="absolute bottom-0 left-0 w-full h-16 bg-gray-900 z-10"></div>
+                  
+                  {/* Google Forms iframe */}
+                  <iframe 
+                    src="https://docs.google.com/forms/d/e/1FAIpQLScbf9wCPF1oq357su40D17zAyCrep30QeGz-cF6L8MIInQM5Q/viewform?embedded=true" 
+                    width="100%" 
+                    height="600" 
+                    style={{ 
+                      border: 'none', 
+                      background: 'rgba(20, 20, 20, 0.8)',
+                      marginTop: '-50px', // Сдвигаем, чтобы скрыть header формы
+                      marginBottom: '-50px', // Сдвигаем, чтобы скрыть footer формы
+                    }}
+                    onLoad={handleIframeLoad}
+                    title="Contact Form"
+                    className="px-4"
+                  >
+                    Загрузка...
+                  </iframe>
+                </div>
+                
+                {/* Декоративные элементы японского стиля */}
+                <div className="absolute top-4 right-4 jp-heading text-5xl text-accent-custom opacity-10 pointer-events-none">送信</div>
+                <div className="absolute bottom-4 left-4 jp-heading text-5xl text-accent-custom opacity-10 pointer-events-none">連絡</div>
               </div>
               
               {/* Red Hanko stamp */}
@@ -641,8 +700,8 @@ export default function ContactSection() {
       
       {/* Частицы и интерактивные элементы */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Рендеринг плавающих частиц */}
-        {particles.map(particle => (
+        {/* Рендеринг плавающих частиц (с ограничением для оптимизации) */}
+        {particles.slice(0, 15).map(particle => (
           <motion.div
             key={particle.id}
             className="absolute rounded-full"
@@ -666,8 +725,8 @@ export default function ContactSection() {
           />
         ))}
         
-        {/* Рендеринг каллиграфических символов */}
-        {calligraphySymbols.map(symbol => (
+        {/* Рендеринг каллиграфических символов (с ограничением для оптимизации) */}
+        {calligraphySymbols.slice(0, 5).map(symbol => (
           <motion.div
             key={symbol.id}
             className="absolute jp-heading text-accent-custom pointer-events-none"
