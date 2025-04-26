@@ -1,462 +1,30 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, useAnimation, AnimatePresence } from 'framer-motion';
-import { FaPaperPlane, FaInstagram, FaYoutube, FaFacebookF } from 'react-icons/fa';
-
-// Интерфейс для частиц
-interface Particle {
-  id: number;
-  x: number;
-  y: number;
-  size: number;
-  color: string;
-  opacity: number;
-  speedX: number;
-  speedY: number;
-}
-
-// Интерфейс для каллиграфических символов
-interface CalligraphySymbol {
-  id: number;
-  x: number;
-  y: number;
-  symbol: string;
-  size: number;
-  opacity: number;
-  rotation: number;
-}
+import { motion, useAnimation } from 'framer-motion';
 
 export default function ContactSection() {
-  const [isFormLoaded, setIsFormLoaded] = useState(false);
-  const [isFormSubmitted, setIsFormSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [formPosition, setFormPosition] = useState({ x: 0, y: 0 });
-  const [hoverField, setHoverField] = useState<string | null>(null);
-  const [particles, setParticles] = useState<Particle[]>([]);
-  const [calligraphySymbols, setCalligraphySymbols] = useState<CalligraphySymbol[]>([]);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [inkEffect, setInkEffect] = useState<{ x: number, y: number, visible: boolean }>({ x: 0, y: 0, visible: false });
-  
+  const [isLoaded, setIsLoaded] = useState(false);
   const formRef = useRef<HTMLDivElement>(null);
-  const formControls = useAnimation();
-  const stampControls = useAnimation();
   const containerRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  
-  // Японские символы для случайного отображения
-  const japaneseSymbols = ['音', '宮', '本', '和', '愛', '美', '想', '創', '輝', '静'];
-  
-  // Цвета для частиц
-  const particleColors = ['#FF5555', '#8A9FA6', '#E6DBCB', '#FFA59E'];
-  
+
   useEffect(() => {
-    // Добавляем небольшую задержку для анимации появления
     const timer = setTimeout(() => {
-      setIsFormLoaded(true);
+      setIsLoaded(true);
     }, 300);
     
     return () => clearTimeout(timer);
   }, []);
-  
-  // Создание начальных частиц и символов - уменьшено количество частиц
-  useEffect(() => {
-    // Создаем начальные частицы
-    const initialParticles: Particle[] = [];
-    for (let i = 0; i < 15; i++) { // Уменьшили с 30 до 15 частиц
-      initialParticles.push(createParticle());
-    }
-    setParticles(initialParticles);
-    
-    // Создаем плавающие японские символы
-    const initialSymbols: CalligraphySymbol[] = [];
-    for (let i = 0; i < 5; i++) { // Уменьшили с 10 до 5 символов
-      initialSymbols.push(createCalligraphySymbol());
-    }
-    setCalligraphySymbols(initialSymbols);
-    
-    // Запускаем анимацию с меньшей частотой обновления
-    const animationInterval = setInterval(() => {
-      updateParticlesAndSymbols();
-    }, 100); // Увеличили интервал с 50 до 100 мс
-    
-    return () => clearInterval(animationInterval);
-  }, []);
-  
-  // Инициализация и рисование на канвасе
-  useEffect(() => {
-    if (!canvasRef.current) return;
-    
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    
-    // Устанавливаем размер канваса, соответствующий размеру окна
-    const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      drawBackground(ctx);
-    };
-    
-    // Функция для рисования японских мазков кистью на фоне
-    const drawBackground = (ctx: CanvasRenderingContext2D) => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = '#000000';
-      ctx.lineWidth = 2;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      
-      // Добавляем несколько мазков японской кистью
-      drawBrushStroke(ctx, canvas.width * 0.1, canvas.height * 0.2, canvas.width * 0.3, canvas.height * 0.3);
-      drawBrushStroke(ctx, canvas.width * 0.7, canvas.height * 0.1, canvas.width * 0.8, canvas.height * 0.3);
-      drawBrushStroke(ctx, canvas.width * 0.3, canvas.height * 0.7, canvas.width * 0.5, canvas.height * 0.8);
-      drawBrushStroke(ctx, canvas.width * 0.8, canvas.height * 0.6, canvas.width * 0.9, canvas.height * 0.9);
-      
-      // Добавляем небольшие круги, напоминающие капли чернил
-      for (let i = 0; i < 20; i++) {
-        const x = Math.random() * canvas.width;
-        const y = Math.random() * canvas.height;
-        const radius = Math.random() * 5 + 1;
-        
-        ctx.beginPath();
-        ctx.arc(x, y, radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-        ctx.fill();
-      }
-    };
-    
-    // Функция для рисования мазка кистью
-    const drawBrushStroke = (
-      ctx: CanvasRenderingContext2D, 
-      startX: number, 
-      startY: number, 
-      endX: number, 
-      endY: number
-    ) => {
-      ctx.save();
-      ctx.globalAlpha = 0.1;
-      
-      // Создаем кривую линию с различной шириной, имитирующую мазок кистью
-      const points = 8;
-      const pointsArray = [];
-      
-      // Генерируем промежуточные точки с небольшими отклонениями
-      for (let i = 0; i <= points; i++) {
-        const ratio = i / points;
-        const x = startX + (endX - startX) * ratio + (Math.random() - 0.5) * 30;
-        const y = startY + (endY - startY) * ratio + (Math.random() - 0.5) * 30;
-        pointsArray.push({ x, y });
-      }
-      
-      // Рисуем основную линию
-      ctx.beginPath();
-      ctx.moveTo(pointsArray[0].x, pointsArray[0].y);
-      
-      for (let i = 1; i < pointsArray.length; i++) {
-        // Используем кривые Безье для более плавной линии
-        const prevPoint = pointsArray[i - 1];
-        const currPoint = pointsArray[i];
-        
-        // Если есть следующая точка, используем ее для контроля
-        if (i < pointsArray.length - 1) {
-          const nextPoint = pointsArray[i + 1];
-          const cp1x = prevPoint.x + (currPoint.x - prevPoint.x) * 0.5;
-          const cp1y = prevPoint.y + (currPoint.y - prevPoint.y) * 0.5;
-          const cp2x = currPoint.x + (nextPoint.x - currPoint.x) * 0.5;
-          const cp2y = currPoint.y + (nextPoint.y - currPoint.y) * 0.5;
-          
-          ctx.quadraticCurveTo(cp1x, cp1y, currPoint.x, currPoint.y);
-        } else {
-          ctx.lineTo(currPoint.x, currPoint.y);
-        }
-      }
-      
-      ctx.stroke();
-      ctx.restore();
-    };
-    
-    // Инициализация при монтировании и изменении размера окна
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-    
-    return () => {
-      window.removeEventListener('resize', resizeCanvas);
-    };
-  }, []);
-  
-  // Функция создания новой частицы
-  const createParticle = (x?: number, y?: number): Particle => {
-    const containerWidth = containerRef.current?.offsetWidth || window.innerWidth;
-    const containerHeight = containerRef.current?.offsetHeight || window.innerHeight;
-    
-    return {
-      id: Math.random(),
-      x: x || Math.random() * containerWidth,
-      y: y || Math.random() * containerHeight,
-      size: Math.random() * 8 + 2,
-      color: particleColors[Math.floor(Math.random() * particleColors.length)],
-      opacity: Math.random() * 0.5 + 0.1,
-      speedX: (Math.random() - 0.5) * 2,
-      speedY: (Math.random() - 0.5) * 2
-    };
-  };
-  
-  // Функция создания каллиграфического символа
-  const createCalligraphySymbol = (): CalligraphySymbol => {
-    const containerWidth = containerRef.current?.offsetWidth || window.innerWidth;
-    const containerHeight = containerRef.current?.offsetHeight || window.innerHeight;
-    
-    return {
-      id: Math.random(),
-      x: Math.random() * containerWidth,
-      y: Math.random() * containerHeight,
-      symbol: japaneseSymbols[Math.floor(Math.random() * japaneseSymbols.length)],
-      size: Math.random() * 60 + 30,
-      opacity: Math.random() * 0.2 + 0.05,
-      rotation: Math.random() * 360
-    };
-  };
-  
-  // Обновление позиций частиц и символов
-  const updateParticlesAndSymbols = () => {
-    if (!containerRef.current) return;
-    
-    const containerWidth = containerRef.current.offsetWidth;
-    const containerHeight = containerRef.current.offsetHeight;
-    
-    // Обновляем частицы
-    setParticles(prev => {
-      return prev.map(particle => {
-        let newX = particle.x + particle.speedX;
-        let newY = particle.y + particle.speedY;
-        
-        // Проверяем границы и при необходимости меняем направление
-        if (newX < 0 || newX > containerWidth) {
-          newX = particle.x;
-          particle.speedX *= -1;
-        }
-        
-        if (newY < 0 || newY > containerHeight) {
-          newY = particle.y;
-          particle.speedY *= -1;
-        }
-        
-        // Немного меняем непрозрачность для эффекта мерцания
-        const newOpacity = particle.opacity + (Math.random() - 0.5) * 0.05;
-        
-        return {
-          ...particle,
-          x: newX,
-          y: newY,
-          opacity: Math.min(Math.max(newOpacity, 0.05), 0.6)
-        };
-      });
-    });
-    
-    // Плавно перемещаем символы
-    setCalligraphySymbols(prev => {
-      return prev.map(symbol => {
-        // Очень медленное движение для символов
-        const newX = symbol.x + (Math.random() - 0.5) * 0.5;
-        const newY = symbol.y + (Math.random() - 0.5) * 0.5;
-        const newRotation = symbol.rotation + (Math.random() - 0.5) * 0.3;
-        
-        // Проверяем границы
-        const x = newX < 0 ? containerWidth : newX > containerWidth ? 0 : newX;
-        const y = newY < 0 ? containerHeight : newY > containerHeight ? 0 : newY;
-        
-        return {
-          ...symbol,
-          x,
-          y,
-          rotation: newRotation
-        };
-      });
-    });
-  };
-  
-  // Эффект плавающей формы при движении мыши
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      
-      // Обновляем позицию мыши для взаимодействия с частицами
-      setMousePosition({ x, y });
-      
-      // Calculate position relative to the center of the container
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      
-      // Movement range in pixels (small value for subtle effect)
-      const moveX = (x - centerX) / 50;
-      const moveY = (y - centerY) / 50;
-      
-      setFormPosition({ x: moveX, y: moveY });
-      
-      // Влияем на движение частиц вблизи курсора
-      setParticles(prev => {
-        return prev.map(particle => {
-          // Расстояние от частицы до курсора
-          const dx = particle.x - x;
-          const dy = particle.y - y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          
-          // Если частица близко к курсору, меняем её скорость
-          if (distance < 100) {
-            // Нормализованный вектор от курсора к частице
-            const nx = dx / distance;
-            const ny = dy / distance;
-            
-            // Чем ближе частица, тем сильнее эффект
-            const factor = 1 - distance / 100;
-            
-            return {
-              ...particle,
-              speedX: particle.speedX + nx * factor * 0.5,
-              speedY: particle.speedY + ny * factor * 0.5
-            };
-          }
-          
-          return particle;
-        });
-      });
-    }
-  };
-  
-  // Функция для создания эффекта брызг
-  const createInkSplash = (x: number, y: number) => {
-    // Добавляем частицы в форме брызг
-    const splashParticles: Particle[] = [];
-    for (let i = 0; i < 10; i++) { // Уменьшили с 20 до 10 частиц
-      splashParticles.push({
-        id: Math.random(),
-        x,
-        y,
-        size: Math.random() * 10 + 5,
-        color: '#000000',
-        opacity: Math.random() * 0.5 + 0.2,
-        speedX: (Math.random() - 0.5) * 10,
-        speedY: (Math.random() - 0.5) * 10
-      });
-    }
-    
-    setParticles(prev => [...prev, ...splashParticles]);
-    
-    // Показываем эффект чернильной кляксы
-    setInkEffect({
-      x,
-      y,
-      visible: true
-    });
-    
-    // Скрываем эффект через некоторое время
-    setTimeout(() => {
-      setInkEffect(prev => ({ ...prev, visible: false }));
-    }, 1500);
-  };
-  
-  // Обработчик отправки формы
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Получаем данные формы
-    const form = e.target as HTMLFormElement;
-    const formData = new FormData(form);
-    
-    const name = formData.get('user_name') as string;
-    const email = formData.get('user_email') as string;
-    const service = formData.get('service') as string;
-    const message = formData.get('message') as string;
-    
-    if (!name || !email || !message) {
-      setErrorMessage('Пожалуйста, заполните все обязательные поля');
-      return;
-    }
-    
-    setIsSubmitting(true);
-    setErrorMessage(null);
-    
-    try {
-      // Создаем и отправляем скрытый iframe
-      if (!iframeRef.current) {
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.name = 'hidden-frame';
-        document.body.appendChild(iframe);
-        
-        // Создаем форму для отправки
-        const googleForm = document.createElement('form');
-        googleForm.action = 'https://docs.google.com/forms/d/e/1FAIpQLScbf9wCPF1oq357su40D17zAyCrep30QeGz-cF6L8MIInQM5Q/formResponse';
-        googleForm.method = 'POST';
-        googleForm.target = 'hidden-frame';
-        
-        // Добавляем поля с правильными ID
-        const createInput = (name: string, value: string) => {
-          const input = document.createElement('input');
-          input.name = name;
-          input.value = value;
-          input.type = 'hidden';
-          googleForm.appendChild(input);
-        };
-        
-        createInput('entry.1752367064', name);
-        createInput('entry.765967897', email);
-        createInput('entry.1636822330', service || 'Not specified');
-        createInput('entry.1123326561', message);
-        
-        document.body.appendChild(googleForm);
-        googleForm.submit();
-        
-        setTimeout(() => {
-          document.body.removeChild(googleForm);
-          document.body.removeChild(iframe);
-        }, 1000);
-      }
-      
-      // Анимируем успешную отправку
-      await stampControls.start({
-        scale: [0.8, 1.2, 1],
-        rotate: [-5, 5, 0],
-        transition: { duration: 0.5 }
-      });
-      
-      setIsFormSubmitted(true);
-      
-      // Эффект брызг чернил в случайной позиции
-      if (formRef.current) {
-        const rect = formRef.current.getBoundingClientRect();
-        createInkSplash(rect.width * 0.7, rect.height * 0.3);
-      }
-      
-      // Сбрасываем форму
-      form.reset();
-      
-      setTimeout(() => {
-        setIsFormSubmitted(false);
-        setIsSubmitting(false);
-      }, 3000);
-      
-    } catch (error) {
-      console.error('Ошибка при отправке формы:', error);
-      setErrorMessage('Произошла ошибка при отправке. Пожалуйста, попробуйте позже.');
-      setIsSubmitting(false);
-    }
-  };
-  
+
   return (
-    <section id="contact" className="jp-section relative overflow-hidden py-24">
+    <section id="contact" className="jp-section relative overflow-hidden py-24 bg-[#0f0f0f]">
       <div 
         className="container-custom relative z-10" 
-        ref={containerRef} 
-        onMouseMove={handleMouseMove}
+        ref={containerRef}
       >
         <div className="text-center mb-12">
           <motion.h2 
-            className="jp-heading text-4xl md:text-5xl font-bold jp-title mb-2"
+            className="jp-heading text-4xl md:text-5xl font-bold jp-title mb-2 text-white"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -472,7 +40,7 @@ export default function ContactSection() {
             transition={{ duration: 0.7, delay: 0.3 }}
           />
           <motion.p 
-            className="mt-4 text-xl text-gray-700"
+            className="mt-4 text-xl text-gray-300"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -482,441 +50,93 @@ export default function ContactSection() {
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="flex flex-col items-center">
           <motion.div 
-            className="relative z-10"
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            className="w-full max-w-3xl relative z-10"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7, delay: 0.2 }}
+            ref={formRef}
           >
-            <motion.div 
-              className="jp-border form-letter letter-paper bg-background p-8 relative jp-stamp"
-              animate={formControls}
-              style={{
-                boxShadow: '0 20px 40px rgba(0,0,0,0.1)', 
-                transform: `perspective(1000px) rotateX(${formPosition.y}deg) rotateY(${-formPosition.x}deg)`,
-                transition: 'transform 0.1s ease-out'
-              }}
-              ref={formRef}
-              onClick={(e) => {
-                const rect = e.currentTarget.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                createInkSplash(x, y);
-              }}
-            >
-              {/* Эффект чернильной кляксы */}
-              <AnimatePresence>
-                {inkEffect.visible && (
-                  <motion.div 
-                    className="absolute z-0 pointer-events-none"
-                    style={{ 
-                      left: inkEffect.x, 
-                      top: inkEffect.y, 
-                      transform: 'translate(-50%, -50%)'
-                    }}
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 0.15 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.7 }}
-                  >
-                    <svg width="200" height="200" viewBox="0 0 200 200">
-                      <path d="M100,20 C150,20 180,70 180,100 C180,140 150,180 100,180 C50,180 20,150 20,100 C20,60 50,20 100,20 Z" fill="currentColor" className="text-accent-custom" />
-                    </svg>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
+            <div className="jp-border bg-[#1a1a1a] p-8 rounded-lg shadow-lg">
               {/* Декоративные элементы */}
-              <div className="absolute top-4 right-4 w-16 h-16 border-t-2 border-r-2 border-accent-custom opacity-30"></div>
-              <div className="absolute bottom-4 left-4 w-16 h-16 border-b-2 border-l-2 border-accent-custom opacity-30"></div>
+              <div className="absolute top-4 right-4 w-16 h-16 border-t-2 border-r-2 border-accent-custom opacity-20"></div>
+              <div className="absolute bottom-4 left-4 w-16 h-16 border-b-2 border-l-2 border-accent-custom opacity-20"></div>
               
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">Contact Form</h3>
+              <h3 className="text-2xl font-bold text-white mb-6 flex items-center">
+                <span className="jp-heading text-accent-custom mr-2">問い合わせ</span> 
+                <span>Contact Form</span>
+              </h3>
               
-              {/* Кастомная форма в японском стиле */}
-              <div className="w-full relative overflow-hidden">
-                <form className="space-y-6" onSubmit={handleSubmit}>
-                  <motion.div
-                    whileHover={{ y: -2 }}
-                    onHoverStart={() => setHoverField('name')}
-                    onHoverEnd={() => setHoverField(null)}
-                  >
-                    <div className="flex items-center mb-2">
-                      <label 
-                        htmlFor="name" 
-                        className={`block text-gray-700 transition-all duration-300 ${hoverField === 'name' ? 'text-accent-custom' : ''}`}
-                      >
-                        Name
-                      </label>
-                      <span className="jp-heading text-xs text-accent-custom ml-2 opacity-70">名前</span>
-                    </div>
-                    <div className="relative">
-                      <input 
-                        type="text" 
-                        id="name" 
-                        name="user_name" 
-                        className="w-full px-4 py-2 border-b-2 border-gray-300 focus:border-accent-custom focus:ring-0 bg-transparent text-gray-800 dark:text-white"
-                        required 
-                      />
-                      <div 
-                        className={`absolute bottom-0 left-0 h-0.5 bg-accent-custom transform origin-left transition-transform duration-300 ${hoverField === 'name' ? 'scale-x-100' : 'scale-x-0'}`} 
-                        style={{ width: '100%' }}
-                      ></div>
-                    </div>
-                  </motion.div>
-                  
-                  <motion.div
-                    whileHover={{ y: -2 }}
-                    onHoverStart={() => setHoverField('email')}
-                    onHoverEnd={() => setHoverField(null)}
-                  >
-                    <div className="flex items-center mb-2">
-                      <label 
-                        htmlFor="email" 
-                        className={`block text-gray-700 transition-all duration-300 ${hoverField === 'email' ? 'text-accent-custom' : ''}`}
-                      >
-                        Email
-                      </label>
-                      <span className="jp-heading text-xs text-accent-custom ml-2 opacity-70">メール</span>
-                    </div>
-                    <div className="relative">
-                      <input 
-                        type="email" 
-                        id="email" 
-                        name="user_email" 
-                        className="w-full px-4 py-2 border-b-2 border-gray-300 focus:border-accent-custom focus:ring-0 bg-transparent text-gray-800 dark:text-white"
-                        required 
-                      />
-                      <div 
-                        className={`absolute bottom-0 left-0 h-0.5 bg-accent-custom transform origin-left transition-transform duration-300 ${hoverField === 'email' ? 'scale-x-100' : 'scale-x-0'}`} 
-                        style={{ width: '100%' }}
-                      ></div>
-                    </div>
-                  </motion.div>
-                  
-                  <motion.div
-                    whileHover={{ y: -2 }}
-                    onHoverStart={() => setHoverField('service')}
-                    onHoverEnd={() => setHoverField(null)}
-                  >
-                    <div className="flex items-center mb-2">
-                      <label 
-                        htmlFor="service" 
-                        className={`block text-gray-700 transition-all duration-300 ${hoverField === 'service' ? 'text-accent-custom' : ''}`}
-                      >
-                        Service
-                      </label>
-                      <span className="jp-heading text-xs text-accent-custom ml-2 opacity-70">サービス</span>
-                    </div>
-                    <div className="relative">
-                      <select 
-                        id="service" 
-                        name="service" 
-                        className="w-full px-4 py-2 border-b-2 border-gray-300 focus:border-accent-custom focus:ring-0 bg-transparent text-gray-800 dark:text-white appearance-none"
-                      >
-                        <option value="">Select service</option>
-                        <option value="mastering">Mastering</option>
-                        <option value="mixing">Mixing</option>
-                        <option value="recording">Recording</option>
-                        <option value="beats">Beat Production</option>
-                        <option value="sound-design">Sound Design</option>
-                        <option value="arrangement">Arrangement</option>
-                      </select>
-                      <div 
-                        className={`absolute bottom-0 left-0 h-0.5 bg-accent-custom transform origin-left transition-transform duration-300 ${hoverField === 'service' ? 'scale-x-100' : 'scale-x-0'}`} 
-                        style={{ width: '100%' }}
-                      ></div>
-                      <div className="absolute right-4 top-2.5 pointer-events-none">
-                        <svg className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                      </div>
-                    </div>
-                  </motion.div>
-                  
-                  <motion.div
-                    whileHover={{ y: -2 }}
-                    onHoverStart={() => setHoverField('message')}
-                    onHoverEnd={() => setHoverField(null)}
-                  >
-                    <div className="flex items-center mb-2">
-                      <label 
-                        htmlFor="message" 
-                        className={`block text-gray-700 transition-all duration-300 ${hoverField === 'message' ? 'text-accent-custom' : ''}`}
-                      >
-                        Message
-                      </label>
-                      <span className="jp-heading text-xs text-accent-custom ml-2 opacity-70">メッセージ</span>
-                    </div>
-                    <div className="relative">
-                      <textarea 
-                        id="message" 
-                        name="message" 
-                        rows={5} 
-                        className="w-full px-4 py-2 border-b-2 border-gray-300 focus:border-accent-custom focus:ring-0 bg-transparent text-gray-800 dark:text-white" 
-                        required
-                      ></textarea>
-                      <div 
-                        className={`absolute bottom-0 left-0 h-0.5 bg-accent-custom transform origin-left transition-transform duration-300 ${hoverField === 'message' ? 'scale-x-100' : 'scale-x-0'}`} 
-                        style={{ width: '100%' }}
-                      ></div>
-                    </div>
-                  </motion.div>
-                  
-                  {errorMessage && (
-                    <div className="text-accent-custom text-sm">{errorMessage}</div>
-                  )}
-                  
-                  <div>
-                    <motion.button 
-                      type="submit" 
-                      className="jp-button ink-splash-button w-full flex items-center justify-center group relative overflow-hidden"
-                      disabled={isSubmitting}
-                      whileHover={{ scale: 1.01 }}
-                      whileTap={{ scale: 0.99 }}
-                      animate={isSubmitting ? { scale: [1, 0.98, 1], transition: { repeat: Infinity, duration: 1 } } : {}}
-                    >
-                      <span className="relative z-10 flex items-center">
-                        {isSubmitting ? (
-                          <>
-                            <span className="jp-heading mr-2">送信中</span>
-                            SENDING...
-                          </>
-                        ) : (
-                          <>
-                            <span className="jp-heading mr-2">送信</span>
-                            SEND
-                          </>
-                        )}
-                        {!isSubmitting && (
-                          <motion.span
-                            className="ml-2"
-                            animate={{ x: [0, 5, 0] }}
-                            transition={{ duration: 1, repeat: Infinity, repeatType: "reverse" }}
-                          >
-                            <FaPaperPlane className="h-4 w-4" />
-                          </motion.span>
-                        )}
-                      </span>
-                      <div className="absolute inset-0 overflow-hidden">
-                        <div 
-                          className="w-full h-full bg-accent-custom transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out"
-                        />
-                      </div>
-                    </motion.button>
+              {/* Интегрированная Google Form в iframe */}
+              <div className="w-full relative overflow-hidden bg-[#1a1a1a] rounded-lg">
+                {!isLoaded && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-[#1a1a1a]">
+                    <div className="w-8 h-8 border-t-2 border-accent-custom rounded-full animate-spin"></div>
                   </div>
-                  
-                  <iframe 
-                    ref={iframeRef}
-                    name="hidden-frame" 
-                    style={{ display: 'none' }}
-                  ></iframe>
-                </form>
-                
-                {/* Декоративные японские символы */}
-                <div className="absolute top-4 right-4 jp-heading text-4xl text-accent-custom opacity-10 pointer-events-none">連絡</div>
-                <div className="absolute bottom-4 left-4 jp-heading text-4xl text-accent-custom opacity-10 pointer-events-none">問い</div>
-              </div>
-              
-              {/* Red Hanko stamp */}
-              <AnimatePresence>
-                {isFormSubmitted && (
-                  <motion.div 
-                    className="absolute -right-10 top-10 bg-accent-custom text-white jp-heading p-6 rounded-full shadow-lg z-20 flex items-center justify-center border-2 border-red-700"
-                    initial={{ scale: 0, rotate: -20, opacity: 0 }}
-                    animate={{ scale: 1, rotate: 0, opacity: 1 }}
-                    exit={{ scale: 0, opacity: 0 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                  >
-                    <div className="text-center">
-                      <div className="text-2xl">送信</div>
-                      <div className="text-xs mt-1">SENT</div>
-                    </div>
-                  </motion.div>
                 )}
-              </AnimatePresence>
-            </motion.div>
-          </motion.div>
-          
-          <motion.div 
-            className="relative z-10"
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.4 }}
-          >
-            <div className="jp-border bg-background p-8 h-full">
-              <h3 className="text-2xl font-bold text-gray-900 mb-8">Contact Information</h3>
-              
-              <div className="space-y-8">
-                <motion.div 
-                  className="flex items-start"
-                  whileHover={{ x: 5 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                >
-                  <div className="bg-accent-custom p-3 rounded-full text-white mr-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-gray-900">Email</h4>
-                    <a 
-                      href="mailto:info@miyamoto-soundworks.com" 
-                      className="text-gray-700 hover:text-accent-custom transition-colors"
-                    >
-                      info@miyamoto-soundworks.com
-                    </a>
-                  </div>
-                </motion.div>
                 
-                <motion.div 
-                  className="flex items-start"
-                  whileHover={{ x: 5 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                >
-                  <div className="bg-accent-custom p-3 rounded-full text-white mr-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-gray-900">Location</h4>
-                    <p className="text-gray-700">
-                      Berlin, Germany
-                    </p>
-                  </div>
-                </motion.div>
-              </div>
-              
-              {/* Japanese-style artwork */}
-              <div className="mt-12 relative">
-                <div className="absolute top-0 right-0 jp-heading text-8xl text-accent-custom opacity-10">音</div>
+                <div className="form-container" style={{ height: '600px' }}>
+                  <iframe 
+                    src="https://docs.google.com/forms/d/e/1FAIpQLScbf9wCPF1oq357su40D17zAyCrep30QeGz-cF6L8MIInQM5Q/viewform?embedded=true" 
+                    width="100%" 
+                    height="100%" 
+                    frameBorder="0" 
+                    marginHeight={0} 
+                    marginWidth={0}
+                    style={{
+                      backgroundColor: '#1a1a1a',
+                      borderRadius: '8px',
+                      filter: 'invert(0.85) hue-rotate(180deg)',
+                      opacity: isLoaded ? 1 : 0,
+                      transition: 'opacity 0.5s ease'
+                    }}
+                    onLoad={() => setIsLoaded(true)}
+                  >
+                    Loading form...
+                  </iframe>
+                </div>
                 
-                <div className="relative z-10">
-                  <p className="text-gray-700 mb-6">
-                    Our studio is located in the creative heart of Berlin, where Eastern philosophy meets Western technology. We work with clients worldwide and provide remote services for all your audio production needs.
-                  </p>
-                </div>
+                {/* Декоративный символ */}
+                <div className="absolute top-4 right-4 jp-heading text-4xl text-accent-custom opacity-10 pointer-events-none">連絡</div>
               </div>
               
-              <div className="mt-8 relative z-10">
-                <h4 className="font-bold text-gray-900 mb-4">Social Media</h4>
-                <div className="flex space-x-4">
-                  <motion.a 
-                    href="#" 
-                    className="bg-gray-200 p-3 rounded-full text-accent-custom hover:bg-accent-custom hover:text-white transition-colors"
-                    whileHover={{ y: -5, rotate: 5 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <FaInstagram className="h-5 w-5" />
-                  </motion.a>
-                  <motion.a 
-                    href="#" 
-                    className="bg-gray-200 p-3 rounded-full text-accent-custom hover:bg-accent-custom hover:text-white transition-colors"
-                    whileHover={{ y: -5, rotate: -5 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <FaYoutube className="h-5 w-5" />
-                  </motion.a>
-                  <motion.a 
-                    href="#" 
-                    className="bg-gray-200 p-3 rounded-full text-accent-custom hover:bg-accent-custom hover:text-white transition-colors"
-                    whileHover={{ y: -5, rotate: 5 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <FaFacebookF className="h-5 w-5" />
-                  </motion.a>
-                </div>
+              <div className="mt-8 text-gray-400 text-sm">
+                <p>Please fill out the form above to get in touch with our team. We will respond to your inquiry as soon as possible.</p>
               </div>
-              
-              <motion.div 
-                className="mt-12 bg-gradient-to-r from-accent-custom to-red-800 p-6 rounded-lg text-white shadow-lg"
-                whileHover={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              >
-                <h4 className="font-bold text-xl mb-2">Urgent Project?</h4>
-                <p className="text-sm mb-4">Contact us now for a quick response</p>
-                <a 
-                  href="mailto:urgent@miyamoto-soundworks.com" 
-                  className="inline-flex items-center bg-white text-accent-custom px-4 py-2 rounded font-bold text-sm hover:bg-gray-100 transition-colors"
-                >
-                  CONTACT NOW
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+            </div>
+            
+            {/* Краткая контактная информация под формой */}
+            <div className="mt-8 flex justify-center space-x-8 text-white">
+              <div className="flex flex-col items-center">
+                <div className="text-accent-custom mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
+                </div>
+                <a href="mailto:info@miyamoto-soundworks.com" className="text-gray-300 hover:text-accent-custom transition-colors">
+                  info@miyamoto-soundworks.com
                 </a>
-              </motion.div>
+              </div>
+              
+              <div className="flex flex-col items-center">
+                <div className="text-accent-custom mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <span className="text-gray-300">Berlin, Germany</span>
+              </div>
             </div>
           </motion.div>
         </div>
       </div>
       
-      {/* Частицы и интерактивные элементы */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Рендеринг плавающих частиц (с ограничением для оптимизации) */}
-        {particles.slice(0, 15).map(particle => (
-          <motion.div
-            key={particle.id}
-            className="absolute rounded-full"
-            style={{
-              left: particle.x,
-              top: particle.y,
-              width: particle.size,
-              height: particle.size,
-              background: particle.color,
-              opacity: particle.opacity,
-            }}
-            initial={false}
-            animate={{
-              x: particle.x,
-              y: particle.y,
-            }}
-            transition={{
-              duration: 0.1,
-              ease: 'linear'
-            }}
-          />
-        ))}
-        
-        {/* Рендеринг каллиграфических символов (с ограничением для оптимизации) */}
-        {calligraphySymbols.slice(0, 5).map(symbol => (
-          <motion.div
-            key={symbol.id}
-            className="absolute jp-heading text-accent-custom pointer-events-none"
-            style={{
-              left: symbol.x,
-              top: symbol.y,
-              fontSize: symbol.size,
-              opacity: symbol.opacity,
-              transform: `rotate(${symbol.rotation}deg)`,
-            }}
-            initial={false}
-            animate={{
-              rotate: symbol.rotation,
-            }}
-            transition={{
-              duration: 0.5,
-              ease: 'linear'
-            }}
-          >
-            {symbol.symbol}
-          </motion.div>
-        ))}
-      </div>
-      
-      {/* Декоративный фон */}
-      <canvas 
-        ref={canvasRef}
-        className="absolute inset-0 w-full h-full"
-        style={{ opacity: 0.1 }}
-      />
-      
-      {/* Decorative background elements */}
+      {/* Минимальные декоративные элементы фона */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-        {/* Background pattern */}
+        {/* Фоновый узор */}
         <div className="absolute inset-0 opacity-5">
           <div className="w-full h-full" style={{
             backgroundImage: 'radial-gradient(circle, rgba(200, 200, 200, 0.3) 1px, transparent 1px)',
@@ -924,10 +144,20 @@ export default function ContactSection() {
           }}></div>
         </div>
         
-        {/* Decorative shapes */}
+        {/* Декоративные формы */}
         <div className="absolute -left-64 -top-64 w-[500px] h-[500px] rounded-full bg-accent-custom opacity-5 blur-3xl"></div>
         <div className="absolute -right-64 -bottom-64 w-[500px] h-[500px] rounded-full bg-accent-custom opacity-5 blur-3xl"></div>
       </div>
+      
+      {/* CSS для стилизации встроенного iframe */}
+      <style jsx global>{`
+        /* Стилизация iframe для Google Forms */
+        .form-container {
+          position: relative;
+          overflow: hidden;
+          border-radius: 8px;
+        }
+      `}</style>
     </section>
   );
 } 
