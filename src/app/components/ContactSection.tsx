@@ -30,14 +30,13 @@ interface CalligraphySymbol {
 export default function ContactSection() {
   const [isFormLoaded, setIsFormLoaded] = useState(false);
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [formPosition, setFormPosition] = useState({ x: 0, y: 0 });
   const [hoverField, setHoverField] = useState<string | null>(null);
   const [particles, setParticles] = useState<Particle[]>([]);
   const [calligraphySymbols, setCalligraphySymbols] = useState<CalligraphySymbol[]>([]);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [inkEffect, setInkEffect] = useState<{ x: number, y: number, visible: boolean }>({ x: 0, y: 0, visible: false });
+  const [iframeLoaded, setIframeLoaded] = useState(false);
   
   const formRef = useRef<HTMLDivElement>(null);
   const formControls = useAnimation();
@@ -276,38 +275,6 @@ export default function ContactSection() {
     });
   };
   
-  // Создание эффекта брызг чернил при клике на форму
-  const createInkSplash = (x: number, y: number) => {
-    // Добавляем частицы в форме брызг
-    const splashParticles: Particle[] = [];
-    for (let i = 0; i < 20; i++) {
-      splashParticles.push({
-        id: Math.random(),
-        x,
-        y,
-        size: Math.random() * 10 + 5,
-        color: '#000000',
-        opacity: Math.random() * 0.5 + 0.2,
-        speedX: (Math.random() - 0.5) * 10,
-        speedY: (Math.random() - 0.5) * 10
-      });
-    }
-    
-    setParticles(prev => [...prev, ...splashParticles]);
-    
-    // Показываем эффект чернильной кляксы
-    setInkEffect({
-      x,
-      y,
-      visible: true
-    });
-    
-    // Скрываем эффект через некоторое время
-    setTimeout(() => {
-      setInkEffect(prev => ({ ...prev, visible: false }));
-    }, 1500);
-  };
-  
   // Эффект плавающей формы при движении мыши
   const handleMouseMove = (e: React.MouseEvent) => {
     if (containerRef.current) {
@@ -358,107 +325,56 @@ export default function ContactSection() {
     }
   };
   
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Функция для создания эффекта брызг
+  const createInkSplash = (x: number, y: number) => {
+    // Добавляем частицы в форме брызг
+    const splashParticles: Particle[] = [];
+    for (let i = 0; i < 20; i++) {
+      splashParticles.push({
+        id: Math.random(),
+        x,
+        y,
+        size: Math.random() * 10 + 5,
+        color: '#000000',
+        opacity: Math.random() * 0.5 + 0.2,
+        speedX: (Math.random() - 0.5) * 10,
+        speedY: (Math.random() - 0.5) * 10
+      });
+    }
     
-    // Получаем форму из события
-    const form = e.target as HTMLFormElement;
-    const formData = new FormData(form);
+    setParticles(prev => [...prev, ...splashParticles]);
     
-    // Получаем значения полей
-    const name = formData.get('user_name') as string;
-    const email = formData.get('user_email') as string;
-    const service = formData.get('service') as string;
-    const message = formData.get('message') as string;
+    // Показываем эффект чернильной кляксы
+    setInkEffect({
+      x,
+      y,
+      visible: true
+    });
     
-    setIsSubmitting(true);
-    setErrorMessage(null);
+    // Скрываем эффект через некоторое время
+    setTimeout(() => {
+      setInkEffect(prev => ({ ...prev, visible: false }));
+    }, 1500);
+  };
+  
+  // Обработчик успешной загрузки iframe
+  const handleIframeLoad = () => {
+    setIframeLoaded(true);
     
-    try {
-      // URL Google Forms
-      const googleFormUrl = 'https://docs.google.com/forms/d/e/1FAIpQLScbf9wCPF1oq357su40D17zAyCrep30QeGz-cF6L8MIInQM5Q/formResponse';
-      
-      console.log('Preparing Google Form submission...');
-      
-      // Формируем URL с параметрами
-      const url = new URL(googleFormUrl);
-      
-      // Используем правильные ID полей Google Forms
-      url.searchParams.append('entry.1752367064', name); // ID для имени
-      url.searchParams.append('entry.765967897', email); // ID для email
-      url.searchParams.append('entry.1636822330', service || 'Not specified'); // ID для услуги
-      url.searchParams.append('entry.1123326561', message); // ID для сообщения
-      
-      // Отправляем данные через скрытый iframe для обхода CORS
-      const iframe = document.createElement('iframe');
-      iframe.name = 'hidden-iframe';
-      iframe.id = 'hidden-iframe';
-      iframe.style.display = 'none';
-      document.body.appendChild(iframe);
-      
-      // Создаем временную форму
-      const tempForm = document.createElement('form');
-      tempForm.action = url.toString();
-      tempForm.method = 'POST';
-      tempForm.target = 'hidden-iframe';
-      
-      // Добавляем поля к форме
-      const appendField = (name: string, value: string) => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = name;
-        input.value = value;
-        tempForm.appendChild(input);
-      };
-      
-      appendField('entry.1752367064', name);
-      appendField('entry.765967897', email);
-      appendField('entry.1636822330', service || 'Not specified');
-      appendField('entry.1123326561', message);
-      
-      // Добавляем форму, отправляем и удаляем её
-      document.body.appendChild(tempForm);
-      tempForm.submit();
-      
-      setTimeout(() => {
-        document.body.removeChild(tempForm);
-        document.body.removeChild(iframe);
-      }, 1000);
-      
-      console.log('Form submitted successfully');
-      
-      // Анимация успешной отправки
-      await stampControls.start({
+    // Анимируем печать после загрузки
+    setTimeout(() => {
+      stampControls.start({
         scale: [0.8, 1.2, 1],
         rotate: [-5, 5, 0],
         transition: { duration: 0.5 }
       });
       
-      setIsFormSubmitted(true);
-      form.reset();
-      
-      // Эффект брызг чернил в позиции формы
+      // Эффект брызг чернил в случайной позиции на форме
       if (formRef.current) {
         const rect = formRef.current.getBoundingClientRect();
-        createInkSplash(rect.width / 2, rect.height / 2);
+        createInkSplash(rect.width * 0.7, rect.height * 0.3);
       }
-      
-      // Анимация пост-отправки
-      await formControls.start({
-        y: [0, -20, 0],
-        transition: { duration: 0.7, ease: "easeInOut" }
-      });
-      
-      // Через 3 секунды сбрасываем состояние
-      setTimeout(() => {
-        setIsFormSubmitted(false);
-      }, 3000);
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      setErrorMessage('Failed to send message. Please try again later.');
-    } finally {
-      setIsSubmitting(false);
-    }
+    }, 1000);
   };
   
   return (
@@ -505,7 +421,7 @@ export default function ContactSection() {
             transition={{ duration: 0.7, delay: 0.2 }}
           >
             <motion.div 
-              className={`jp-border form-letter letter-paper bg-background p-8 relative jp-stamp ${isFormSubmitted ? 'stamped' : ''}`}
+              className="jp-border form-letter letter-paper bg-background p-8 relative jp-stamp"
               animate={formControls}
               style={{
                 boxShadow: '0 20px 40px rgba(0,0,0,0.1)', 
@@ -546,175 +462,65 @@ export default function ContactSection() {
               <div className="absolute top-4 right-4 w-16 h-16 border-t-2 border-r-2 border-accent-custom opacity-30"></div>
               <div className="absolute bottom-4 left-4 w-16 h-16 border-b-2 border-l-2 border-accent-custom opacity-30"></div>
               
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">Order Form</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">Contact Form</h3>
               
-              <form className="space-y-6" onSubmit={handleSubmit}>
-                <motion.div
-                  whileHover={{ y: -2 }}
-                  onHoverStart={() => setHoverField('name')}
-                  onHoverEnd={() => setHoverField(null)}
-                >
-                  <label 
-                    htmlFor="name" 
-                    className={`block text-gray-700 mb-2 transition-all duration-300 ${hoverField === 'name' ? 'text-accent-custom' : ''}`}
-                  >
-                    Name
-                  </label>
-                  <div className="relative">
-                  <input 
-                    type="text" 
-                    id="name" 
-                      name="user_name" 
-                      className="w-full px-4 py-2 border-b-2 border-gray-300 focus:border-accent-custom focus:ring-0 bg-transparent text-gray-800"
-                    required 
-                  />
-                    <div 
-                      className={`absolute bottom-0 left-0 h-0.5 bg-accent-custom transform origin-left transition-transform duration-300 ${hoverField === 'name' ? 'scale-x-100' : 'scale-x-0'}`} 
-                      style={{ width: '100%' }}
-                    ></div>
-                </div>
-                </motion.div>
-                
-                <motion.div
-                  whileHover={{ y: -2 }}
-                  onHoverStart={() => setHoverField('email')}
-                  onHoverEnd={() => setHoverField(null)}
-                >
-                  <label 
-                    htmlFor="email" 
-                    className={`block text-gray-700 mb-2 transition-all duration-300 ${hoverField === 'email' ? 'text-accent-custom' : ''}`}
-                  >
-                    Email
-                  </label>
-                  <div className="relative">
-                  <input 
-                    type="email" 
-                    id="email" 
-                      name="user_email" 
-                      className="w-full px-4 py-2 border-b-2 border-gray-300 focus:border-accent-custom focus:ring-0 bg-transparent text-gray-800"
-                    required 
-                  />
-                    <div 
-                      className={`absolute bottom-0 left-0 h-0.5 bg-accent-custom transform origin-left transition-transform duration-300 ${hoverField === 'email' ? 'scale-x-100' : 'scale-x-0'}`} 
-                      style={{ width: '100%' }}
-                    ></div>
-                </div>
-                </motion.div>
-                
-                <motion.div
-                  whileHover={{ y: -2 }}
-                  onHoverStart={() => setHoverField('service')}
-                  onHoverEnd={() => setHoverField(null)}
-                >
-                  <label 
-                    htmlFor="service" 
-                    className={`block text-gray-700 mb-2 transition-all duration-300 ${hoverField === 'service' ? 'text-accent-custom' : ''}`}
-                  >
-                    Service
-                  </label>
-                  <div className="relative">
-                  <select 
-                    id="service" 
-                    name="service" 
-                      className="w-full px-4 py-2 border-b-2 border-gray-300 focus:border-accent-custom focus:ring-0 bg-transparent text-gray-800 appearance-none"
-                  >
-                      <option value="">Select service</option>
-                    <option value="mastering">Mastering</option>
-                    <option value="mixing">Mixing</option>
-                    <option value="recording">Recording</option>
-                      <option value="beats">Beat Production</option>
-                    <option value="sound-design">Sound Design</option>
-                    <option value="arrangement">Arrangement</option>
-                  </select>
-                    <div 
-                      className={`absolute bottom-0 left-0 h-0.5 bg-accent-custom transform origin-left transition-transform duration-300 ${hoverField === 'service' ? 'scale-x-100' : 'scale-x-0'}`} 
-                      style={{ width: '100%' }}
-                    ></div>
-                    <div className="absolute right-4 top-2.5 pointer-events-none">
-                      <svg className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                      </svg>
+              {/* Контейнер для формы с стилизацией */}
+              <div className="w-full relative overflow-hidden">
+                {!iframeLoaded && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 z-10">
+                    <div className="flex flex-col items-center">
+                      <div className="jp-heading text-2xl text-accent-custom">読み込み中</div>
+                      <div className="text-sm text-gray-600 mt-2">Loading form...</div>
+                      <div className="flex space-x-3 mt-4">
+                        {[0, 1, 2].map((dot) => (
+                          <motion.div
+                            key={dot}
+                            className="w-3 h-3 bg-accent-custom rounded-full"
+                            animate={{
+                              y: [0, -10, 0],
+                              opacity: [0.5, 1, 0.5]
+                            }}
+                            transition={{
+                              duration: 0.8,
+                              repeat: Infinity,
+                              delay: dot * 0.2,
+                              ease: "easeInOut"
+                            }}
+                          />
+                        ))}
+                      </div>
                     </div>
-                </div>
-                </motion.div>
-                
-                <motion.div
-                  whileHover={{ y: -2 }}
-                  onHoverStart={() => setHoverField('message')}
-                  onHoverEnd={() => setHoverField(null)}
-                >
-                  <label 
-                    htmlFor="message" 
-                    className={`block text-gray-700 mb-2 transition-all duration-300 ${hoverField === 'message' ? 'text-accent-custom' : ''}`}
-                  >
-                    Message
-                  </label>
-                  <div className="relative">
-                  <textarea 
-                    id="message" 
-                    name="message" 
-                    rows={5} 
-                      className="w-full px-4 py-2 border-b-2 border-gray-300 focus:border-accent-custom focus:ring-0 bg-transparent text-gray-800" 
-                    required
-                  ></textarea>
-                    <div 
-                      className={`absolute bottom-0 left-0 h-0.5 bg-accent-custom transform origin-left transition-transform duration-300 ${hoverField === 'message' ? 'scale-x-100' : 'scale-x-0'}`} 
-                      style={{ width: '100%' }}
-                    ></div>
-                </div>
-                </motion.div>
-                
-                {errorMessage && (
-                  <div className="text-accent-custom text-sm">{errorMessage}</div>
+                  </div>
                 )}
                 
-                <div>
-                  <motion.button 
-                    type="submit" 
-                    className="jp-button ink-splash-button w-full flex items-center justify-center group relative overflow-hidden"
-                    disabled={isSubmitting}
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
-                    animate={stampControls}
-                  >
-                    <span className="relative z-10 flex items-center">
-                      {isSubmitting ? 'SENDING...' : 'SEND'}
-                      {!isSubmitting && (
-                        <motion.span
-                          className="ml-2"
-                          animate={{ x: [0, 5, 0] }}
-                          transition={{ duration: 1, repeat: Infinity, repeatType: "reverse" }}
-                        >
-                          <FaPaperPlane className="h-4 w-4" />
-                        </motion.span>
-                      )}
-                    </span>
-                    <div className="absolute inset-0 overflow-hidden">
-                      <div 
-                        className="w-full h-full bg-accent-custom transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out"
-                      />
-                    </div>
-                  </motion.button>
-                </div>
-              </form>
+                {/* Google Forms iframe */}
+                <iframe 
+                  src="https://docs.google.com/forms/d/e/1FAIpQLScbf9wCPF1oq357su40D17zAyCrep30QeGz-cF6L8MIInQM5Q/viewform?embedded=true" 
+                  width="100%" 
+                  height="550" 
+                  style={{ 
+                    border: 'none', 
+                    background: 'transparent', 
+                  }}
+                  onLoad={handleIframeLoad}
+                  title="Contact Form"
+                >
+                  Загрузка...
+                </iframe>
+              </div>
               
-              {/* Red Hanko stamp that appears on submission */}
-              <AnimatePresence>
-                {isFormSubmitted && (
-                  <motion.div 
-                    className="absolute -right-10 top-10 bg-accent-custom text-white jp-heading p-6 rounded-full shadow-lg z-20 flex items-center justify-center border-2 border-red-700"
-                    initial={{ scale: 0, rotate: -20, opacity: 0 }}
-                    animate={{ scale: 1, rotate: 0, opacity: 1 }}
-                    exit={{ scale: 0, opacity: 0 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                  >
-                    <div className="text-center">
-                      <div className="text-2xl">送信</div>
-                      <div className="text-xs mt-1">SENT</div>
-            </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {/* Red Hanko stamp */}
+              <motion.div 
+                className="absolute -right-10 top-10 bg-accent-custom text-white jp-heading p-6 rounded-full shadow-lg z-20 flex items-center justify-center border-2 border-red-700"
+                initial={{ scale: 0, rotate: -20, opacity: 0 }}
+                animate={stampControls}
+                transition={{ type: "spring", stiffness: 300, damping: 15 }}
+              >
+                <div className="text-center">
+                  <div className="text-2xl">宮本</div>
+                  <div className="text-xs mt-1">MIYAMOTO</div>
+                </div>
+              </motion.div>
             </motion.div>
           </motion.div>
           
