@@ -59,7 +59,7 @@ export default function ContactSection() {
             transition={{ duration: 0.7, delay: 0.2 }}
             ref={formRef}
           >
-            <div className="jp-border bg-[#1a1a1a] p-8 rounded-lg shadow-lg">
+            <div className="jp-border bg-[#0f0f0f] p-8 rounded-lg shadow-lg">
               {/* Декоративные элементы */}
               <div className="absolute top-4 right-4 w-16 h-16 border-t-2 border-r-2 border-accent-custom opacity-20"></div>
               <div className="absolute bottom-4 left-4 w-16 h-16 border-b-2 border-l-2 border-accent-custom opacity-20"></div>
@@ -70,27 +70,30 @@ export default function ContactSection() {
               </h3>
               
               {/* Интегрированная Google Form в iframe */}
-              <div className="w-full relative overflow-hidden bg-[#1a1a1a] rounded-lg">
+              <div className="w-full relative overflow-hidden bg-[#0f0f0f] rounded-lg">
                 {!isLoaded && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-[#1a1a1a]">
+                  <div className="absolute inset-0 flex items-center justify-center bg-[#0f0f0f]">
                     <div className="w-8 h-8 border-t-2 border-accent-custom rounded-full animate-spin"></div>
                   </div>
                 )}
                 
-                <div className="form-container" style={{ height: '600px' }}>
+                <div className="form-container" style={{ height: 'auto' }}>
                   <iframe 
-                    src="https://docs.google.com/forms/d/e/1FAIpQLScbf9wCPF1oq357su40D17zAyCrep30QeGz-cF6L8MIInQM5Q/viewform?embedded=true" 
+                    src="https://docs.google.com/forms/d/e/1FAIpQLScbf9wCPF1oq357su40D17zAyCrep30QeGz-cF6L8MIInQM5Q/viewform?embedded=true&usp=pp_url&theme=dark&bgcolor=0f0f0f" 
                     width="100%" 
-                    height="100%" 
+                    height="640px" 
                     frameBorder="0" 
                     marginHeight={0} 
                     marginWidth={0}
                     style={{
-                      backgroundColor: '#1a1a1a',
-                      borderRadius: '8px',
+                      backgroundColor: '#0f0f0f',
+                      borderRadius: '0px',
+                      border: 'none',
                       filter: 'invert(0.85) hue-rotate(180deg)',
                       opacity: isLoaded ? 1 : 0,
-                      transition: 'opacity 0.5s ease'
+                      transition: 'opacity 0.5s ease',
+                      maxWidth: '100%',
+                      overflow: 'hidden'
                     }}
                     onLoad={() => setIsLoaded(true)}
                   >
@@ -155,7 +158,22 @@ export default function ContactSection() {
         .form-container {
           position: relative;
           overflow: hidden;
-          border-radius: 8px;
+          border-radius: 0;
+        }
+        
+        /* Убираем скроллбар у iframe */
+        iframe {
+          scrollbar-width: none; /* Firefox */
+        }
+        
+        iframe::-webkit-scrollbar {
+          display: none; /* Chrome, Safari, Opera */
+        }
+        
+        /* Скрываем внешние рамки формы в iframe */
+        iframe html body form {
+          border: none !important;
+          box-shadow: none !important;
         }
       `}</style>
     </section>
