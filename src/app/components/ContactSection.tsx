@@ -30,19 +30,21 @@ interface CalligraphySymbol {
 export default function ContactSection() {
   const [isFormLoaded, setIsFormLoaded] = useState(false);
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [formPosition, setFormPosition] = useState({ x: 0, y: 0 });
   const [hoverField, setHoverField] = useState<string | null>(null);
   const [particles, setParticles] = useState<Particle[]>([]);
   const [calligraphySymbols, setCalligraphySymbols] = useState<CalligraphySymbol[]>([]);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [inkEffect, setInkEffect] = useState<{ x: number, y: number, visible: boolean }>({ x: 0, y: 0, visible: false });
-  const [iframeLoaded, setIframeLoaded] = useState(false);
   
   const formRef = useRef<HTMLDivElement>(null);
   const formControls = useAnimation();
   const stampControls = useAnimation();
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   
   // Японские символы для случайного отображения
   const japaneseSymbols = ['音', '宮', '本', '和', '愛', '美', '想', '創', '輝', '静'];
@@ -357,69 +359,92 @@ export default function ContactSection() {
     }, 1500);
   };
   
-  // Обработчик успешной загрузки iframe
-  const handleIframeLoad = () => {
-    setIframeLoaded(true);
+  // Обработчик отправки формы
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     
-    // Анимируем печать после загрузки
-    setTimeout(() => {
-      stampControls.start({
+    // Получаем данные формы
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+    
+    const name = formData.get('user_name') as string;
+    const email = formData.get('user_email') as string;
+    const service = formData.get('service') as string;
+    const message = formData.get('message') as string;
+    
+    if (!name || !email || !message) {
+      setErrorMessage('Пожалуйста, заполните все обязательные поля');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    setErrorMessage(null);
+    
+    try {
+      // Создаем и отправляем скрытый iframe
+      if (!iframeRef.current) {
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.name = 'hidden-frame';
+        document.body.appendChild(iframe);
+        
+        // Создаем форму для отправки
+        const googleForm = document.createElement('form');
+        googleForm.action = 'https://docs.google.com/forms/d/e/1FAIpQLScbf9wCPF1oq357su40D17zAyCrep30QeGz-cF6L8MIInQM5Q/formResponse';
+        googleForm.method = 'POST';
+        googleForm.target = 'hidden-frame';
+        
+        // Добавляем поля с правильными ID
+        const createInput = (name: string, value: string) => {
+          const input = document.createElement('input');
+          input.name = name;
+          input.value = value;
+          input.type = 'hidden';
+          googleForm.appendChild(input);
+        };
+        
+        createInput('entry.1752367064', name);
+        createInput('entry.765967897', email);
+        createInput('entry.1636822330', service || 'Not specified');
+        createInput('entry.1123326561', message);
+        
+        document.body.appendChild(googleForm);
+        googleForm.submit();
+        
+        setTimeout(() => {
+          document.body.removeChild(googleForm);
+          document.body.removeChild(iframe);
+        }, 1000);
+      }
+      
+      // Анимируем успешную отправку
+      await stampControls.start({
         scale: [0.8, 1.2, 1],
         rotate: [-5, 5, 0],
         transition: { duration: 0.5 }
       });
       
-      // Эффект брызг чернил в случайной позиции на форме
+      setIsFormSubmitted(true);
+      
+      // Эффект брызг чернил в случайной позиции
       if (formRef.current) {
         const rect = formRef.current.getBoundingClientRect();
         createInkSplash(rect.width * 0.7, rect.height * 0.3);
       }
       
-      // Стилизуем iframe после загрузки
-      const iframe = document.querySelector('iframe');
-      if (iframe) {
-        // Пытаемся добавить стили к содержимому iframe
-        try {
-          iframe.onload = () => {
-            const iframeDocument = iframe.contentDocument || iframe.contentWindow?.document;
-            if (iframeDocument) {
-              // Создаем стиль для iframe
-              const style = iframeDocument.createElement('style');
-              style.textContent = `
-                body { 
-                  background: rgba(30, 30, 30, 0.9) !important; 
-                  color: #fff !important;
-                  font-family: inherit !important;
-                }
-                .freebirdFormviewerViewHeaderTitleRow { display: none !important; }
-                .freebirdFormviewerViewFooterFooterContainer { display: none !important; }
-                .freebirdFormviewerViewNavigationNavControls { display: none !important; }
-                .freebirdFormviewerViewFooterEmbeddedBackground { display: none !important; }
-                .freebirdThemedFilledButtonM2 { 
-                  background-color: #FF5555 !important; 
-                  color: white !important;
-                  border-radius: 0 !important;
-                  font-family: inherit !important;
-                }
-                input, textarea { 
-                  background-color: rgba(50, 50, 50, 0.2) !important; 
-                  color: white !important;
-                  border-bottom: 2px solid #FF5555 !important;
-                }
-                .freebirdFormviewerComponentsQuestionBaseTitle { 
-                  color: #ddd !important; 
-                  font-family: inherit !important;
-                }
-                .freebirdFormviewerComponentsQuestionRadioChoice { color: #ddd !important; }
-              `;
-              iframeDocument.head.appendChild(style);
-            }
-          };
-        } catch (e) {
-          console.log('Не удалось стилизовать iframe из-за ограничений безопасности');
-        }
-      }
-    }, 1000);
+      // Сбрасываем форму
+      form.reset();
+      
+      setTimeout(() => {
+        setIsFormSubmitted(false);
+        setIsSubmitting(false);
+      }, 3000);
+      
+    } catch (error) {
+      console.error('Ошибка при отправке формы:', error);
+      setErrorMessage('Произошла ошибка при отправке. Пожалуйста, попробуйте позже.');
+      setIsSubmitting(false);
+    }
   };
   
   return (
@@ -509,77 +534,208 @@ export default function ContactSection() {
               
               <h3 className="text-2xl font-bold text-gray-900 mb-6">Contact Form</h3>
               
-              {/* Контейнер для формы с стилизацией */}
+              {/* Кастомная форма в японском стиле */}
               <div className="w-full relative overflow-hidden">
-                {!iframeLoaded && (
-                  <div className="absolute inset-0 flex items-center justify-center color-gray-50 bg-opacity-90 z-10">
-                    <div className="flex flex-col items-center">
-                      <div className="jp-heading text-2xl text-accent-custom">読み込み中</div>
-                      <div className="text-sm text-gray-300 mt-2">Loading form...</div>
-                      <div className="flex space-x-3 mt-4">
-                        {[0, 1, 2].map((dot) => (
-                          <motion.div
-                            key={dot}
-                            className="w-3 h-3 bg-accent-custom rounded-full"
-                            animate={{
-                              y: [0, -10, 0],
-                              opacity: [0.5, 1, 0.5]
-                            }}
-                            transition={{
-                              duration: 0.8,
-                              repeat: Infinity,
-                              delay: dot * 0.2,
-                              ease: "easeInOut"
-                            }}
-                          />
-                        ))}
+                <form className="space-y-6" onSubmit={handleSubmit}>
+                  <motion.div
+                    whileHover={{ y: -2 }}
+                    onHoverStart={() => setHoverField('name')}
+                    onHoverEnd={() => setHoverField(null)}
+                  >
+                    <div className="flex items-center mb-2">
+                      <label 
+                        htmlFor="name" 
+                        className={`block text-gray-700 transition-all duration-300 ${hoverField === 'name' ? 'text-accent-custom' : ''}`}
+                      >
+                        Name
+                      </label>
+                      <span className="jp-heading text-xs text-accent-custom ml-2 opacity-70">名前</span>
+                    </div>
+                    <div className="relative">
+                      <input 
+                        type="text" 
+                        id="name" 
+                        name="user_name" 
+                        className="w-full px-4 py-2 border-b-2 border-gray-300 focus:border-accent-custom focus:ring-0 bg-transparent text-gray-800 dark:text-white"
+                        required 
+                      />
+                      <div 
+                        className={`absolute bottom-0 left-0 h-0.5 bg-accent-custom transform origin-left transition-transform duration-300 ${hoverField === 'name' ? 'scale-x-100' : 'scale-x-0'}`} 
+                        style={{ width: '100%' }}
+                      ></div>
+                    </div>
+                  </motion.div>
+                  
+                  <motion.div
+                    whileHover={{ y: -2 }}
+                    onHoverStart={() => setHoverField('email')}
+                    onHoverEnd={() => setHoverField(null)}
+                  >
+                    <div className="flex items-center mb-2">
+                      <label 
+                        htmlFor="email" 
+                        className={`block text-gray-700 transition-all duration-300 ${hoverField === 'email' ? 'text-accent-custom' : ''}`}
+                      >
+                        Email
+                      </label>
+                      <span className="jp-heading text-xs text-accent-custom ml-2 opacity-70">メール</span>
+                    </div>
+                    <div className="relative">
+                      <input 
+                        type="email" 
+                        id="email" 
+                        name="user_email" 
+                        className="w-full px-4 py-2 border-b-2 border-gray-300 focus:border-accent-custom focus:ring-0 bg-transparent text-gray-800 dark:text-white"
+                        required 
+                      />
+                      <div 
+                        className={`absolute bottom-0 left-0 h-0.5 bg-accent-custom transform origin-left transition-transform duration-300 ${hoverField === 'email' ? 'scale-x-100' : 'scale-x-0'}`} 
+                        style={{ width: '100%' }}
+                      ></div>
+                    </div>
+                  </motion.div>
+                  
+                  <motion.div
+                    whileHover={{ y: -2 }}
+                    onHoverStart={() => setHoverField('service')}
+                    onHoverEnd={() => setHoverField(null)}
+                  >
+                    <div className="flex items-center mb-2">
+                      <label 
+                        htmlFor="service" 
+                        className={`block text-gray-700 transition-all duration-300 ${hoverField === 'service' ? 'text-accent-custom' : ''}`}
+                      >
+                        Service
+                      </label>
+                      <span className="jp-heading text-xs text-accent-custom ml-2 opacity-70">サービス</span>
+                    </div>
+                    <div className="relative">
+                      <select 
+                        id="service" 
+                        name="service" 
+                        className="w-full px-4 py-2 border-b-2 border-gray-300 focus:border-accent-custom focus:ring-0 bg-transparent text-gray-800 dark:text-white appearance-none"
+                      >
+                        <option value="">Select service</option>
+                        <option value="mastering">Mastering</option>
+                        <option value="mixing">Mixing</option>
+                        <option value="recording">Recording</option>
+                        <option value="beats">Beat Production</option>
+                        <option value="sound-design">Sound Design</option>
+                        <option value="arrangement">Arrangement</option>
+                      </select>
+                      <div 
+                        className={`absolute bottom-0 left-0 h-0.5 bg-accent-custom transform origin-left transition-transform duration-300 ${hoverField === 'service' ? 'scale-x-100' : 'scale-x-0'}`} 
+                        style={{ width: '100%' }}
+                      ></div>
+                      <div className="absolute right-4 top-2.5 pointer-events-none">
+                        <svg className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
                       </div>
                     </div>
-                  </div>
-                )}
-                
-                {/* Стилизованный контейнер для Google Forms iframe */}
-                <div className="w-full bg-gray-900 rounded-md overflow-hidden shadow-lg relative">
-                  {/* Маска для скрытия брендинга Google */}
-                  <div className="absolute top-0 left-0 w-full h-16 bg-gray-900 z-10"></div>
-                  <div className="absolute bottom-0 left-0 w-full h-16 bg-gray-900 z-10"></div>
+                  </motion.div>
                   
-                  {/* Google Forms iframe */}
-                  <iframe 
-                    src="https://docs.google.com/forms/d/e/1FAIpQLScbf9wCPF1oq357su40D17zAyCrep30QeGz-cF6L8MIInQM5Q/viewform?embedded=true" 
-                    width="100%" 
-                    height="600" 
-                    style={{ 
-                      border: 'none', 
-                      background: 'rgba(20, 20, 20, 0.8)',
-                      marginTop: '-50px', // Сдвигаем, чтобы скрыть header формы
-                      marginBottom: '-50px', // Сдвигаем, чтобы скрыть footer формы
-                    }}
-                    onLoad={handleIframeLoad}
-                    title="Contact Form"
-                    className="px-4"
+                  <motion.div
+                    whileHover={{ y: -2 }}
+                    onHoverStart={() => setHoverField('message')}
+                    onHoverEnd={() => setHoverField(null)}
                   >
-                    Загрузка...
-                  </iframe>
-                </div>
+                    <div className="flex items-center mb-2">
+                      <label 
+                        htmlFor="message" 
+                        className={`block text-gray-700 transition-all duration-300 ${hoverField === 'message' ? 'text-accent-custom' : ''}`}
+                      >
+                        Message
+                      </label>
+                      <span className="jp-heading text-xs text-accent-custom ml-2 opacity-70">メッセージ</span>
+                    </div>
+                    <div className="relative">
+                      <textarea 
+                        id="message" 
+                        name="message" 
+                        rows={5} 
+                        className="w-full px-4 py-2 border-b-2 border-gray-300 focus:border-accent-custom focus:ring-0 bg-transparent text-gray-800 dark:text-white" 
+                        required
+                      ></textarea>
+                      <div 
+                        className={`absolute bottom-0 left-0 h-0.5 bg-accent-custom transform origin-left transition-transform duration-300 ${hoverField === 'message' ? 'scale-x-100' : 'scale-x-0'}`} 
+                        style={{ width: '100%' }}
+                      ></div>
+                    </div>
+                  </motion.div>
+                  
+                  {errorMessage && (
+                    <div className="text-accent-custom text-sm">{errorMessage}</div>
+                  )}
+                  
+                  <div>
+                    <motion.button 
+                      type="submit" 
+                      className="jp-button ink-splash-button w-full flex items-center justify-center group relative overflow-hidden"
+                      disabled={isSubmitting}
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.99 }}
+                      animate={isSubmitting ? { scale: [1, 0.98, 1], transition: { repeat: Infinity, duration: 1 } } : {}}
+                    >
+                      <span className="relative z-10 flex items-center">
+                        {isSubmitting ? (
+                          <>
+                            <span className="jp-heading mr-2">送信中</span>
+                            SENDING...
+                          </>
+                        ) : (
+                          <>
+                            <span className="jp-heading mr-2">送信</span>
+                            SEND
+                          </>
+                        )}
+                        {!isSubmitting && (
+                          <motion.span
+                            className="ml-2"
+                            animate={{ x: [0, 5, 0] }}
+                            transition={{ duration: 1, repeat: Infinity, repeatType: "reverse" }}
+                          >
+                            <FaPaperPlane className="h-4 w-4" />
+                          </motion.span>
+                        )}
+                      </span>
+                      <div className="absolute inset-0 overflow-hidden">
+                        <div 
+                          className="w-full h-full bg-accent-custom transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out"
+                        />
+                      </div>
+                    </motion.button>
+                  </div>
+                  
+                  <iframe 
+                    ref={iframeRef}
+                    name="hidden-frame" 
+                    style={{ display: 'none' }}
+                  ></iframe>
+                </form>
                 
-                {/* Декоративные элементы японского стиля */}
-                <div className="absolute top-4 right-4 jp-heading text-5xl text-accent-custom opacity-10 pointer-events-none">送信</div>
-                <div className="absolute bottom-4 left-4 jp-heading text-5xl text-accent-custom opacity-10 pointer-events-none">連絡</div>
+                {/* Декоративные японские символы */}
+                <div className="absolute top-4 right-4 jp-heading text-4xl text-accent-custom opacity-10 pointer-events-none">連絡</div>
+                <div className="absolute bottom-4 left-4 jp-heading text-4xl text-accent-custom opacity-10 pointer-events-none">問い</div>
               </div>
               
               {/* Red Hanko stamp */}
-              <motion.div 
-                className="absolute -right-10 top-10 bg-accent-custom text-white jp-heading p-6 rounded-full shadow-lg z-20 flex items-center justify-center border-2 border-red-700"
-                initial={{ scale: 0, rotate: -20, opacity: 0 }}
-                animate={stampControls}
-                transition={{ type: "spring", stiffness: 300, damping: 15 }}
-              >
-                <div className="text-center">
-                  <div className="text-2xl">宮本</div>
-                  <div className="text-xs mt-1">MIYAMOTO</div>
-                </div>
-              </motion.div>
+              <AnimatePresence>
+                {isFormSubmitted && (
+                  <motion.div 
+                    className="absolute -right-10 top-10 bg-accent-custom text-white jp-heading p-6 rounded-full shadow-lg z-20 flex items-center justify-center border-2 border-red-700"
+                    initial={{ scale: 0, rotate: -20, opacity: 0 }}
+                    animate={{ scale: 1, rotate: 0, opacity: 1 }}
+                    exit={{ scale: 0, opacity: 0 }}
+                    transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                  >
+                    <div className="text-center">
+                      <div className="text-2xl">送信</div>
+                      <div className="text-xs mt-1">SENT</div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           </motion.div>
           
