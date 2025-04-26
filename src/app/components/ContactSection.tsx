@@ -375,63 +375,29 @@ export default function ContactSection() {
     setErrorMessage(null);
     
     try {
-      /*
-       * ИНСТРУКЦИЯ ПО НАСТРОЙКЕ GOOGLE FORMS:
-       * 1. Создайте новую Google Форму (https://forms.google.com/create)
-       * 2. Добавьте нужные поля (Имя, Email, Услуга, Сообщение)
-       * 3. Нажмите на три точки в правом верхнем углу и выберите "Получить предзаполненную ссылку"
-       * 4. Заполните форму тестовыми данными и нажмите "Получить ссылку"
-       * 5. Скопируйте полученную ссылку и проанализируйте её формат
-       * 6. В URL вы увидите ID полей entry.XXXXXXXXX - это ID для каждого поля формы
-       * 7. Замените ID полей ниже на полученные из вашей формы
-       * 8. Замените URL формы на ваш, изменив YOUR_FORM_ID на ID вашей формы
-       */
-      
-      // URL Google Forms (замените YOUR_FORM_ID на ID вашей формы)
-      // Формат: https://docs.google.com/forms/d/e/YOUR_FORM_ID/formResponse
+      // URL Google Forms
       const googleFormUrl = 'https://docs.google.com/forms/d/e/1FAIpQLScbf9wCPF1oq357su40D17zAyCrep30QeGz-cF6L8MIInQM5Q/formResponse';
       
-      console.log('Sending data to Google Form...');
+      console.log('Preparing Google Form submission...');
       
-      // Метод 2: Через скрытый iframe (работает всегда)
-      // Создаем невидимую форму для отправки в Google Forms
-      const hiddenForm = document.createElement('form');
-      hiddenForm.style.display = 'none';
-      hiddenForm.method = 'POST';
-      hiddenForm.action = googleFormUrl;
-      hiddenForm.target = 'hidden-iframe';
+      // Формируем URL с параметрами
+      const url = new URL(googleFormUrl);
       
-      // Добавляем поля формы (замените ID на ваши реальные)
-      const appendInput = (name: string, value: string) => {
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.name = name;
-        input.value = value;
-        hiddenForm.appendChild(input);
-      };
+      // Добавляем параметры (замените ID полей на ваши реальные из Google Forms)
+      url.searchParams.append('entry.1', name); // ID для имени
+      url.searchParams.append('entry.2', email); // ID для email
+      url.searchParams.append('entry.3', service || 'Not specified'); // ID для услуги
+      url.searchParams.append('entry.4', message); // ID для сообщения
+      url.searchParams.append('submit', 'Submit');
       
-      appendInput('entry.1', name); // ID для имени
-      appendInput('entry.2', email); // ID для email
-      appendInput('entry.3', service || 'Not specified'); // ID для услуги
-      appendInput('entry.4', message); // ID для сообщения
-      
-      // Создаем iframe для отправки формы
-      const iframe = document.createElement('iframe');
-      iframe.name = 'hidden-iframe';
-      iframe.style.display = 'none';
-      
-      // Добавляем форму и iframe в DOM
-      document.body.appendChild(iframe);
-      document.body.appendChild(hiddenForm);
-      
-      // Отправляем форму
-      hiddenForm.submit();
-      
-      // Удаляем форму и iframe после отправки
-      setTimeout(() => {
-        document.body.removeChild(hiddenForm);
-        document.body.removeChild(iframe);
-      }, 1000);
+      // Вместо отправки через iframe отправляем через fetch с no-cors
+      fetch(url.toString(), {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      });
       
       console.log('Form submitted successfully');
       

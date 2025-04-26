@@ -220,9 +220,9 @@ export default function TeamSection() {
                     backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.7)), url(${member.image})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
-                  height: '400px',
+                  height: '500px',
                   width: '100%',
-                  minHeight: '400px'
+                  minHeight: '500px'
                 }}
               >
                   {/* Team member info */}
@@ -298,10 +298,10 @@ export default function TeamSection() {
                     
                     <div className="flex flex-col md:flex-row max-h-[90vh] md:max-h-[80vh]">
                       {/* Image column */}
-                      <div className="md:w-2/5 relative h-48 md:h-auto">
+                      <div className="md:w-2/5 relative h-60 md:h-auto">
                         <div 
                           className="h-full w-full"
-                  style={{
+                          style={{
                             backgroundImage: `url(${teamMembers.find(m => m.id === selectedMember)?.image})`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center'
@@ -342,7 +342,7 @@ export default function TeamSection() {
                       </div>
                       
                       {/* Content column */}
-                      <div className="md:w-3/5 p-4 md:p-6">
+                      <div className="md:w-3/5 p-4 md:p-6 overflow-y-auto max-h-[60vh] md:max-h-[80vh]">
                         {/* Decorative elements - made smaller and less intrusive */}
                         <div className="absolute top-4 right-4 h-12 w-12 border-t-2 border-r-2 border-accent-custom opacity-20" />
                         <div className="absolute bottom-4 left-4 h-12 w-12 border-b-2 border-l-2 border-accent-custom opacity-20" />
