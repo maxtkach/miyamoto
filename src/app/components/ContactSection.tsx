@@ -79,9 +79,9 @@ export default function ContactSection() {
                 
                 <div className="form-container" style={{ height: 'auto' }}>
                   <iframe 
-                    src="https://docs.google.com/forms/d/e/1FAIpQLScbf9wCPF1oq357su40D17zAyCrep30QeGz-cF6L8MIInQM5Q/viewform?embedded=true&usp=pp_url&theme=dark&bgcolor=0f0f0f" 
+                    src="https://docs.google.com/forms/d/e/1FAIpQLScbf9wCPF1oq357su40D17zAyCrep30QeGz-cF6L8MIInQM5Q/viewform?embedded=true&usp=sf_link&theme=dark&themeId=dark&bgcolor=0f0f0f&fontColor=ffffff&htitle=0&hideHeader=true" 
                     width="100%" 
-                    height="640px" 
+                    height="720px" 
                     frameBorder="0" 
                     marginHeight={0} 
                     marginWidth={0}
@@ -89,11 +89,14 @@ export default function ContactSection() {
                       backgroundColor: '#0f0f0f',
                       borderRadius: '0px',
                       border: 'none',
-                      filter: 'invert(0.85) hue-rotate(180deg)',
+                      filter: 'invert(0.85) hue-rotate(180deg) brightness(0.9) contrast(1.1)',
                       opacity: isLoaded ? 1 : 0,
                       transition: 'opacity 0.5s ease',
                       maxWidth: '100%',
-                      overflow: 'hidden'
+                      overflow: 'hidden',
+                      transform: 'scale(1.02)',
+                      marginTop: '-10px',
+                      marginBottom: '-10px'
                     }}
                     onLoad={() => setIsLoaded(true)}
                   >
@@ -159,6 +162,8 @@ export default function ContactSection() {
           position: relative;
           overflow: hidden;
           border-radius: 0;
+          margin: -20px;
+          padding: 0;
         }
         
         /* Убираем скроллбар у iframe */
@@ -170,10 +175,29 @@ export default function ContactSection() {
           display: none; /* Chrome, Safari, Opera */
         }
         
-        /* Скрываем внешние рамки формы в iframe */
-        iframe html body form {
-          border: none !important;
-          box-shadow: none !important;
+        /* Стилизация формы внутри iframe */
+        iframe {
+          transform-origin: top center;
+        }
+        
+        /* Полностью скрываем белый фон формы */
+        @media (prefers-color-scheme: dark) {
+          .form-container iframe {
+            background-color: #0f0f0f !important;
+          }
+        }
+        
+        /* Общие стили для iframe */
+        .form-container iframe {
+          background-color: #0f0f0f !important;
+        }
+        
+        /* Скрываем ненужные элементы Google Forms */
+        .freebirdFormviewerViewFooterFooterContainer,
+        .freebirdFormviewerViewNavigationNavControls,
+        .freebirdFormviewerViewFooterEmbeddedBackground,
+        .freebirdThemedFilledButtonM2 {
+          display: none !important;
         }
       `}</style>
     </section>
