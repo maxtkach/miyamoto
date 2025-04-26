@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useAnimation, AnimatePresence } from 'framer-motion';
 import { FaPaperPlane, FaInstagram, FaYoutube, FaFacebookF } from 'react-icons/fa';
-import emailjs from '@emailjs/browser';
 
 // Интерфейс для частиц
 interface Particle {
@@ -184,12 +183,6 @@ export default function ContactSection() {
     return () => {
       window.removeEventListener('resize', resizeCanvas);
     };
-  }, []);
-  
-  // Инициализация EmailJS в компоненте
-  useEffect(() => {
-    // Инициализируем EmailJS с публичным ключом
-    emailjs.init("aOBOUxfnanX1UxKvZ");
   }, []);
   
   // Функция создания новой частицы
@@ -382,29 +375,65 @@ export default function ContactSection() {
     setErrorMessage(null);
     
     try {
-      // Минимальный набор параметров для EmailJS
-      const templateParams = {
-        user_name: name,         // Имя отправителя
-        user_email: email,       // Email отправителя
-        service: service || 'Not specified',  // Тип услуги
-        message: message,        // Текст сообщения
+      /*
+       * ИНСТРУКЦИЯ ПО НАСТРОЙКЕ GOOGLE FORMS:
+       * 1. Создайте новую Google Форму (https://forms.google.com/create)
+       * 2. Добавьте нужные поля (Имя, Email, Услуга, Сообщение)
+       * 3. Нажмите на три точки в правом верхнем углу и выберите "Получить предзаполненную ссылку"
+       * 4. Заполните форму тестовыми данными и нажмите "Получить ссылку"
+       * 5. Скопируйте полученную ссылку и проанализируйте её формат
+       * 6. В URL вы увидите ID полей entry.XXXXXXXXX - это ID для каждого поля формы
+       * 7. Замените ID полей ниже на полученные из вашей формы
+       * 8. Замените URL формы на ваш, изменив YOUR_FORM_ID на ID вашей формы
+       */
+      
+      // URL Google Forms (замените YOUR_FORM_ID на ID вашей формы)
+      // Формат: https://docs.google.com/forms/d/e/YOUR_FORM_ID/formResponse
+      const googleFormUrl = 'https://docs.google.com/forms/d/e/1FAIpQLScbf9wCPF1oq357su40D17zAyCrep30QeGz-cF6L8MIInQM5Q/formResponse';
+      
+      console.log('Sending data to Google Form...');
+      
+      // Метод 2: Через скрытый iframe (работает всегда)
+      // Создаем невидимую форму для отправки в Google Forms
+      const hiddenForm = document.createElement('form');
+      hiddenForm.style.display = 'none';
+      hiddenForm.method = 'POST';
+      hiddenForm.action = googleFormUrl;
+      hiddenForm.target = 'hidden-iframe';
+      
+      // Добавляем поля формы (замените ID на ваши реальные)
+      const appendInput = (name: string, value: string) => {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.name = name;
+        input.value = value;
+        hiddenForm.appendChild(input);
       };
       
-      console.log('Sending email with params:', templateParams);
+      appendInput('entry.1', name); // ID для имени
+      appendInput('entry.2', email); // ID для email
+      appendInput('entry.3', service || 'Not specified'); // ID для услуги
+      appendInput('entry.4', message); // ID для сообщения
       
-      // Отправляем через EmailJS с правильным сервисом и шаблоном
-      const result = await emailjs.send(
-        'service_p5m589h',        // ID сервиса EmailJS
-        'template_6c1adja',       // ID шаблона EmailJS
-        templateParams,          // Параметры для заполнения шаблона
-        'aOBOUxfnanX1UxKvZ'      // Публичный ключ EmailJS
-      );
+      // Создаем iframe для отправки формы
+      const iframe = document.createElement('iframe');
+      iframe.name = 'hidden-iframe';
+      iframe.style.display = 'none';
       
-      console.log('EmailJS response:', result);
+      // Добавляем форму и iframe в DOM
+      document.body.appendChild(iframe);
+      document.body.appendChild(hiddenForm);
       
-      if (result.status !== 200) {
-        throw new Error('Failed to send message');
-      }
+      // Отправляем форму
+      hiddenForm.submit();
+      
+      // Удаляем форму и iframe после отправки
+      setTimeout(() => {
+        document.body.removeChild(hiddenForm);
+        document.body.removeChild(iframe);
+      }, 1000);
+      
+      console.log('Form submitted successfully');
       
       // Анимация успешной отправки
       await stampControls.start({
@@ -433,7 +462,7 @@ export default function ContactSection() {
         setIsFormSubmitted(false);
       }, 3000);
     } catch (error) {
-      console.error('Error sending email:', error);
+      console.error('Error submitting form:', error);
       setErrorMessage('Failed to send message. Please try again later.');
     } finally {
       setIsSubmitting(false);
@@ -540,18 +569,18 @@ export default function ContactSection() {
                     Name
                   </label>
                   <div className="relative">
-                    <input 
-                      type="text" 
-                      id="name" 
+                  <input 
+                    type="text" 
+                    id="name" 
                       name="user_name" 
                       className="w-full px-4 py-2 border-b-2 border-gray-300 focus:border-accent-custom focus:ring-0 bg-transparent text-gray-800"
-                      required 
-                    />
+                    required 
+                  />
                     <div 
                       className={`absolute bottom-0 left-0 h-0.5 bg-accent-custom transform origin-left transition-transform duration-300 ${hoverField === 'name' ? 'scale-x-100' : 'scale-x-0'}`} 
                       style={{ width: '100%' }}
                     ></div>
-                  </div>
+                </div>
                 </motion.div>
                 
                 <motion.div
@@ -566,18 +595,18 @@ export default function ContactSection() {
                     Email
                   </label>
                   <div className="relative">
-                    <input 
-                      type="email" 
-                      id="email" 
+                  <input 
+                    type="email" 
+                    id="email" 
                       name="user_email" 
                       className="w-full px-4 py-2 border-b-2 border-gray-300 focus:border-accent-custom focus:ring-0 bg-transparent text-gray-800"
-                      required 
-                    />
+                    required 
+                  />
                     <div 
                       className={`absolute bottom-0 left-0 h-0.5 bg-accent-custom transform origin-left transition-transform duration-300 ${hoverField === 'email' ? 'scale-x-100' : 'scale-x-0'}`} 
                       style={{ width: '100%' }}
                     ></div>
-                  </div>
+                </div>
                 </motion.div>
                 
                 <motion.div
@@ -592,19 +621,19 @@ export default function ContactSection() {
                     Service
                   </label>
                   <div className="relative">
-                    <select 
-                      id="service" 
-                      name="service" 
+                  <select 
+                    id="service" 
+                    name="service" 
                       className="w-full px-4 py-2 border-b-2 border-gray-300 focus:border-accent-custom focus:ring-0 bg-transparent text-gray-800 appearance-none"
-                    >
+                  >
                       <option value="">Select service</option>
-                      <option value="mastering">Mastering</option>
-                      <option value="mixing">Mixing</option>
-                      <option value="recording">Recording</option>
+                    <option value="mastering">Mastering</option>
+                    <option value="mixing">Mixing</option>
+                    <option value="recording">Recording</option>
                       <option value="beats">Beat Production</option>
-                      <option value="sound-design">Sound Design</option>
-                      <option value="arrangement">Arrangement</option>
-                    </select>
+                    <option value="sound-design">Sound Design</option>
+                    <option value="arrangement">Arrangement</option>
+                  </select>
                     <div 
                       className={`absolute bottom-0 left-0 h-0.5 bg-accent-custom transform origin-left transition-transform duration-300 ${hoverField === 'service' ? 'scale-x-100' : 'scale-x-0'}`} 
                       style={{ width: '100%' }}
@@ -614,7 +643,7 @@ export default function ContactSection() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
                       </svg>
                     </div>
-                  </div>
+                </div>
                 </motion.div>
                 
                 <motion.div
@@ -629,18 +658,18 @@ export default function ContactSection() {
                     Message
                   </label>
                   <div className="relative">
-                    <textarea 
-                      id="message" 
-                      name="message" 
-                      rows={5} 
+                  <textarea 
+                    id="message" 
+                    name="message" 
+                    rows={5} 
                       className="w-full px-4 py-2 border-b-2 border-gray-300 focus:border-accent-custom focus:ring-0 bg-transparent text-gray-800" 
-                      required
-                    ></textarea>
+                    required
+                  ></textarea>
                     <div 
                       className={`absolute bottom-0 left-0 h-0.5 bg-accent-custom transform origin-left transition-transform duration-300 ${hoverField === 'message' ? 'scale-x-100' : 'scale-x-0'}`} 
                       style={{ width: '100%' }}
                     ></div>
-                  </div>
+                </div>
                 </motion.div>
                 
                 {errorMessage && (
@@ -690,7 +719,7 @@ export default function ContactSection() {
                     <div className="text-center">
                       <div className="text-2xl">送信</div>
                       <div className="text-xs mt-1">SENT</div>
-                    </div>
+            </div>
                   </motion.div>
                 )}
               </AnimatePresence>

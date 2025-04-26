@@ -824,9 +824,9 @@ export default function SoundSection() {
                       </div>
                       
                       <div className="relative z-10 w-32 h-32 md:w-40 md:h-40">
-                        <img 
-                          src={currentTrack.cover} 
-                          alt={`${currentTrack.title} cover`} 
+                    <img 
+                      src={currentTrack.cover} 
+                      alt={`${currentTrack.title} cover`} 
                           className="w-full h-full object-cover"
                         />
                         
@@ -834,7 +834,7 @@ export default function SoundSection() {
                         <div
                           className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                         >
-                          <button
+                          <button 
                             onClick={togglePlay}
                             className="bg-white text-accent-custom rounded-full p-3 shadow-lg transition-transform group-hover:scale-105">
                             {isPlaying ? <FaPause size={20} /> : <FaPlay size={20} />}
@@ -891,10 +891,10 @@ export default function SoundSection() {
                               className="text-accent-custom hover:text-accent-light-custom transition-colors p-2 z-10"
                               aria-label={isMuted ? "Unmute" : "Mute"}
                               title="Volume (m to toggle)"
-                            >
-                              {isMuted ? <FaVolumeMute size={20} /> : <FaVolumeUp size={20} />}
-                            </button>
-                            
+                          >
+                            {isMuted ? <FaVolumeMute size={20} /> : <FaVolumeUp size={20} />}
+                          </button>
+                          
                             {isVolumeControlVisible && (
                               <div 
                                 id="volume-control"
@@ -908,30 +908,30 @@ export default function SoundSection() {
                                     {isMuted ? <FaVolumeMute size={16} /> : <FaVolumeUp size={16} />}
                                   </button>
                                 </div>
-                                <input
-                                  type="range"
-                                  min="0"
-                                  max="1"
-                                  step="0.01"
-                                  value={volume}
-                                  onChange={handleVolumeChange}
-                                  className="w-full"
-                                  style={{ accentColor: 'var(--accent)' }}
-                                />
+                              <input
+                                type="range"
+                                min="0"
+                                max="1"
+                                step="0.01"
+                                value={volume}
+                                onChange={handleVolumeChange}
+                                className="w-full"
+                                style={{ accentColor: 'var(--accent)' }}
+                              />
                                 <div className="text-center mt-1 text-xs text-gray-500 dark:text-gray-400">
                                   {Math.round(volume * 100)}%
                                 </div>
-                              </div>
-                            )}
-                          </div>
-                          <button 
-                            onClick={togglePlay}
+                            </div>
+                          )}
+                        </div>
+                        <button 
+                          onClick={togglePlay}
                             className="bg-accent-custom hover:bg-accent-light-custom text-white rounded-full p-3 transition-all shadow-md"
-                            aria-label={isPlaying ? "Pause" : "Play"}
+                          aria-label={isPlaying ? "Pause" : "Play"}
                             title="Play/Pause (space)"
-                          >
-                            {isPlaying ? <FaPause size={16} /> : <FaPlay size={16} />}
-                          </button>
+                        >
+                          {isPlaying ? <FaPause size={16} /> : <FaPlay size={16} />}
+                        </button>
                         </div>
                       </div>
                     </div>
@@ -999,8 +999,8 @@ export default function SoundSection() {
                     <FaPlay className="mr-2" size={14} />
                     <span>Play the first track</span>
                   </button>
-                </div>
-              )}
+              </div>
+            )}
             </AnimatePresence>
             
             {/* Список треков */}
@@ -1010,16 +1010,16 @@ export default function SoundSection() {
               </h3>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {tracks.map((track) => (
-                  <div 
-                    key={track.id}
+              {tracks.map((track) => (
+                <div 
+                  key={track.id}
                     className={`jp-card group cursor-pointer ${currentTrack?.id === track.id ? 'ring-2 ring-accent-custom' : ''}`}
-                    onClick={() => handlePlayTrack(track)}
-                  >
+                  onClick={() => handlePlayTrack(track)}
+                >
                     <div className="relative aspect-square overflow-hidden">
                       <img 
                         src={track.cover} 
-                        alt={`${track.title} cover`}
+                        alt={`${track.title} cover`} 
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -1029,12 +1029,12 @@ export default function SoundSection() {
                             <FaPlay size={16} />
                           }
                         </button>
-                      </div>
+                    </div>
                       
                       {currentTrack?.id === track.id && (
                         <div className="absolute top-2 right-2 bg-accent-custom text-white text-xs px-2 py-1 rounded-full">
                           {isPlaying ? 'Playing' : 'Selected'}
-                        </div>
+                    </div>
                       )}
                       
                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-3">
@@ -1044,12 +1044,12 @@ export default function SoundSection() {
                           <span className="text-xs text-gray-400">{track.category}</span>
                         </div>
                       </div>
-                    </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </div>
+        </div>
         </motion.div>
       </div>
     </motion.section>

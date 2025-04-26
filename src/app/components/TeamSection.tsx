@@ -131,8 +131,8 @@ export default function TeamSection() {
           backgroundSize: '50px 50px',
           backgroundPosition: 'center center'
         }}></div>
-      </div>
-      
+        </div>
+
       {/* Decorative accent lines */}
       <div className="absolute left-0 top-[20%] w-full h-[1px] bg-gradient-to-r from-transparent via-accent-custom to-transparent opacity-20"></div>
       <div className="absolute right-0 top-[60%] w-full h-[1px] bg-gradient-to-r from-accent-custom via-transparent to-accent-custom opacity-20"></div>
@@ -207,21 +207,24 @@ export default function TeamSection() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.5 }}
             >
-              {teamMembers.map((member, index) => (
+          {teamMembers.map((member, index) => (
                 <motion.div 
-                  key={member.id}
+              key={member.id} 
                   className={`team-portrait relative overflow-hidden rounded-lg jp-border transition-all duration-300 ${
                     hoveredMember === member.id ? 'scale-105' : 'scale-100'
-                  }`}
-                  onMouseEnter={() => setHoveredMember(member.id)}
-                  onMouseLeave={() => setHoveredMember(null)}
+              }`}
+              onMouseEnter={() => setHoveredMember(member.id)}
+              onMouseLeave={() => setHoveredMember(null)}
                   onClick={() => handleSelectMember(member.id)}
-                  style={{
+                style={{
                     backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.7)), url(${member.image})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center'
-                  }}
-                >
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  height: '400px',
+                  width: '100%',
+                  minHeight: '400px'
+                }}
+              >
                   {/* Team member info */}
                   <div className="absolute bottom-0 left-0 w-full p-6">
                     <div className="flex items-center justify-between">
@@ -298,7 +301,7 @@ export default function TeamSection() {
                       <div className="md:w-2/5 relative h-48 md:h-auto">
                         <div 
                           className="h-full w-full"
-                          style={{
+                  style={{
                             backgroundImage: `url(${teamMembers.find(m => m.id === selectedMember)?.image})`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center'
@@ -370,8 +373,8 @@ export default function TeamSection() {
                                 </div>
                                 <div className="absolute -bottom-2 -right-2 text-3xl text-accent-custom opacity-20">&rdquo;</div>
                               </motion.div>
-                            </div>
-                            
+              </div>
+
                             {/* Bio */}
                             <motion.div 
                               className="mb-4"
@@ -384,8 +387,8 @@ export default function TeamSection() {
                                 {teamMembers.find(m => m.id === selectedMember)?.bio}
                               </p>
                             </motion.div>
-                          </div>
-                          
+              </div>
+
                           {/* Column 2: Skills, Achievements, Social */}
                           <div>
                             {/* Skills */}
@@ -470,10 +473,10 @@ export default function TeamSection() {
                                 </a>
                               )}
                             </motion.div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                </div>
+              </div>
+            </div>
+        </div>
                   </motion.div>
                 </motion.div>
               )}

@@ -20,6 +20,25 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Google Forms Integration
+
+This project uses Google Forms to collect and store contact form submissions in a Google Spreadsheet. Here's how to set it up:
+
+1. Create a new Google Form at [forms.google.com](https://forms.google.com/create)
+2. Add fields matching your contact form (Name, Email, Service, Message)
+3. Click the three dots in the top-right corner and select "Get pre-filled link"
+4. Fill in the form with sample data and click "Get link"
+5. The resulting URL will contain field IDs in the format `entry.XXXXXXXXX`
+6. Update the `handleSubmit` function in `src/app/components/ContactSection.tsx` with your form's IDs:
+   - Replace `YOUR_FORM_ID` with your actual Google Form ID
+   - Replace each `entry.XXXXXXXXX` ID with the ones from your form
+
+Benefits of this approach:
+- No server needed - works with GitHub Pages static hosting
+- No cost - Google Forms is free
+- Responses are automatically collected in a Google Spreadsheet
+- No CORS issues with the iframe method
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
