@@ -16,7 +16,7 @@ interface TeamMember {
   role: string;
   jpRole: string;
   quote: string;
-  seal: string; // Символ или короткий текст для печати hanko
+  seal: string; // Символ или короткий текст для печати hanko - оставляем поле для обратной совместимости
   image: string; // Путь к фото участника команды
   bio: string;
   skills: Skill[];
@@ -232,7 +232,6 @@ export default function TeamSection() {
                         <h3 className="text-xl font-bold text-white">{member.name}</h3>
                         <p className="text-accent-custom jp-heading">{member.jpRole}</p>
                       </div>
-                      <div className="hanko-seal">{member.seal}</div>
                     </div>
                     
                     <p className="mt-2 text-sm text-gray-200 italic opacity-80">
@@ -301,7 +300,7 @@ export default function TeamSection() {
                       <div className="md:w-2/5 relative h-60 md:h-auto">
                         <div 
                           className="h-full w-full"
-                          style={{
+                  style={{
                             backgroundImage: `url(${teamMembers.find(m => m.id === selectedMember)?.image})`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center'
@@ -314,11 +313,6 @@ export default function TeamSection() {
                         {/* Name overlay on image */}
                         <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black to-transparent">
                           <div className="flex items-center">
-                            {/* Red seal */}
-                            <div className="hanko-seal mr-3 transform scale-75">
-                              <span className="text-3xl">{teamMembers.find(m => m.id === selectedMember)?.seal}</span>
-                            </div>
-                            
                             <div>
                               <motion.h3 
                                 className="text-2xl font-bold text-white"

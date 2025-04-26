@@ -889,7 +889,7 @@ export default function SoundSection() {
                               id="volume-button"
                               onClick={handleVolumeClick}
                               className="text-accent-custom hover:text-accent-light-custom transition-colors p-2 z-10"
-                              aria-label={isMuted ? "Unmute" : "Mute"}
+                            aria-label={isMuted ? "Unmute" : "Mute"}
                               title="Volume (m to toggle)"
                           >
                             {isMuted ? <FaVolumeMute size={20} /> : <FaVolumeUp size={20} />}
@@ -985,7 +985,7 @@ export default function SoundSection() {
                   <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400">
                     <span>{formatTime(currentTime)}</span>
                     <span>{formatTime(duration)}</span>
-                  </div>
+                </div>
                 </motion.div>
               ) : (
                 <div className="text-center p-8">
@@ -1043,7 +1043,7 @@ export default function SoundSection() {
                         <div className="flex justify-between items-center mt-1">
                           <span className="text-xs text-gray-400">{track.category}</span>
                         </div>
-                      </div>
+                    </div>
                   </div>
                 </div>
               ))}

@@ -383,21 +383,47 @@ export default function ContactSection() {
       // Формируем URL с параметрами
       const url = new URL(googleFormUrl);
       
-      // Добавляем параметры (замените ID полей на ваши реальные из Google Forms)
-      url.searchParams.append('entry.1', name); // ID для имени
-      url.searchParams.append('entry.2', email); // ID для email
-      url.searchParams.append('entry.3', service || 'Not specified'); // ID для услуги
-      url.searchParams.append('entry.4', message); // ID для сообщения
-      url.searchParams.append('submit', 'Submit');
+      // Используем правильные ID полей Google Forms
+      url.searchParams.append('entry.1752367064', name); // ID для имени
+      url.searchParams.append('entry.765967897', email); // ID для email
+      url.searchParams.append('entry.1636822330', service || 'Not specified'); // ID для услуги
+      url.searchParams.append('entry.1123326561', message); // ID для сообщения
       
-      // Вместо отправки через iframe отправляем через fetch с no-cors
-      fetch(url.toString(), {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      });
+      // Отправляем данные через скрытый iframe для обхода CORS
+      const iframe = document.createElement('iframe');
+      iframe.name = 'hidden-iframe';
+      iframe.id = 'hidden-iframe';
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
+      
+      // Создаем временную форму
+      const tempForm = document.createElement('form');
+      tempForm.action = url.toString();
+      tempForm.method = 'POST';
+      tempForm.target = 'hidden-iframe';
+      
+      // Добавляем поля к форме
+      const appendField = (name: string, value: string) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value;
+        tempForm.appendChild(input);
+      };
+      
+      appendField('entry.1752367064', name);
+      appendField('entry.765967897', email);
+      appendField('entry.1636822330', service || 'Not specified');
+      appendField('entry.1123326561', message);
+      
+      // Добавляем форму, отправляем и удаляем её
+      document.body.appendChild(tempForm);
+      tempForm.submit();
+      
+      setTimeout(() => {
+        document.body.removeChild(tempForm);
+        document.body.removeChild(iframe);
+      }, 1000);
       
       console.log('Form submitted successfully');
       
